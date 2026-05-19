@@ -69,13 +69,13 @@ public class LootList {
         String treasure;
         treasure = "";
         if (!list.getCoins().isEmpty())
-        treasure = printCoins(treasure);
+            treasure = printCoins(treasure);
         if (!list.getGems().isEmpty())
             treasure = printTreasure(getGems(), treasure, "Gemstones:");
         if (!list.getArt().isEmpty())
             treasure = printTreasure(getArt(), treasure, "Artwork:");
         if (!list.getLoot().isEmpty())
-        treasure = printTreasure(getLoot(),treasure, "Items:");
+            treasure = printTreasure(getLoot(),treasure, "Items:");
         return treasure;
     }
     public String getItems() {
