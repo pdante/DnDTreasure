@@ -14,6 +14,7 @@ public final class MagicItem2024Registry {
             case ARCANA:
                 return getArcanaTable(rarity);
             case ARMAMENTS:
+                return getArmamentsTable(rarity);
             case IMPLEMENTS:
             case RELICS:
             default:
@@ -25,6 +26,7 @@ public final class MagicItem2024Registry {
         if (theme == null) return false;
         switch (theme) {
             case ARCANA:
+            case ARMAMENTS:
             case RANDOM:
                 return true;
             default:
@@ -40,6 +42,17 @@ public final class MagicItem2024Registry {
             case VERY_RARE: return ArcanaTables.VERY_RARE;
             case LEGENDARY: return ArcanaTables.LEGENDARY;
             default: return ArcanaTables.COMMON;
+        }
+    }
+
+    private static MagicItem2024Table getArmamentsTable(MagicItemRarity rarity) {
+        switch (rarity) {
+            case COMMON: return ArmamentsTables.COMMON;
+            case UNCOMMON: return ArmamentsTables.UNCOMMON;
+            case RARE: return ArmamentsTables.RARE;
+            case VERY_RARE: return ArmamentsTables.VERY_RARE;
+            case LEGENDARY: return ArmamentsTables.LEGENDARY;
+            default: return ArmamentsTables.COMMON;
         }
     }
 }

@@ -68,7 +68,7 @@
     <string-array name="theme_array">
         <item>Random</item>
         <item>Arcana</item>
-        <item>Armaments (coming soon)</item>
+        <item>Armaments</item>
         <item>Implements (coming soon)</item>
         <item>Relics (coming soon)</item>
     </string-array>
