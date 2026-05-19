@@ -1,6 +1,8 @@
 package com.dante.paul.dd5erandomlootgenerator;
 
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +42,7 @@ public class LootGenerator extends AppCompatActivity
     private boolean adsEnabled;
     private ConsentInformation consentInformation;
     private final AtomicBoolean adsSdkInitialized = new AtomicBoolean(false);
+    private SharedPreferences.OnSharedPreferenceChangeListener titlePrefsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,14 @@ public class LootGenerator extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        updateToolbarTitle();
+
+        SharedPreferences prefs = getApplicationContext()
+                .getSharedPreferences("LootGenPref", Context.MODE_PRIVATE);
+        titlePrefsListener = (sharedPreferences, key) -> {
+            if ("rules_edition".equals(key)) updateToolbarTitle();
+        };
+        prefs.registerOnSharedPreferenceChangeListener(titlePrefsListener);
 
         billingManager = new BillingManager(this, this);
         adsEnabled = !billingManager.isAdsRemovedCached();
@@ -181,6 +192,12 @@ public class LootGenerator extends AppCompatActivity
         if (billingManager != null) {
             billingManager.destroy();
         }
+        if (titlePrefsListener != null) {
+            getApplicationContext()
+                    .getSharedPreferences("LootGenPref", Context.MODE_PRIVATE)
+                    .unregisterOnSharedPreferenceChangeListener(titlePrefsListener);
+            titlePrefsListener = null;
+        }
         super.onDestroy();
     }
 
@@ -197,6 +214,16 @@ public class LootGenerator extends AppCompatActivity
             remove.setVisible(billingManager == null || !billingManager.isAdsRemovedCached());
         }
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void updateToolbarTitle() {
+        RulesEdition edition = SettingsManager.getRulesEdition(this);
+        int titleRes = edition == RulesEdition.RULES_2014 ? R.string.app_name_2014 : R.string.app_name_2024;
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(titleRes);
+        } else {
+            setTitle(titleRes);
+        }
     }
 
     private void showRulesEditionDialog() {

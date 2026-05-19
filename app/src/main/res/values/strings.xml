@@ -57,6 +57,8 @@
     <string name="rules_edition_dialog_title">Choose Rules Edition</string>
     <string name="rules_edition_2014">2014 (Classic)</string>
     <string name="rules_edition_2024">2024 (New)</string>
+    <string name="app_name_2014">Loot Generator for D&amp;D 5e (2014)</string>
+    <string name="app_name_2024">Loot Generator for D&amp;D 5e (2024)</string>
     <string name="theme">Theme:</string>
     <string name="party_level">Party Level:</string>
     <string-array name="party_level_array">
