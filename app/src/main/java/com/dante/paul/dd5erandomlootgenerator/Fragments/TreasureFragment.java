@@ -174,8 +174,6 @@ public class TreasureFragment extends Fragment {
 
     private MagicItemTheme getTheme(int position) {
         // Array order: Random, Arcana, Armaments, Implements, Relics.
-        // Armaments/Implements/Relics fall back to Arcana via MagicItem2024Registry
-        // until those tables land.
         switch (position) {
             case 1: return MagicItemTheme.ARCANA;
             case 2: return MagicItemTheme.ARMAMENTS;

@@ -18,22 +18,14 @@ public final class MagicItem2024Registry {
             case IMPLEMENTS:
                 return getImplementsTable(rarity);
             case RELICS:
+                return getRelicsTable(rarity);
             default:
                 return getArcanaTable(rarity);
         }
     }
 
     public static boolean isThemeImplemented(MagicItemTheme theme) {
-        if (theme == null) return false;
-        switch (theme) {
-            case ARCANA:
-            case ARMAMENTS:
-            case IMPLEMENTS:
-            case RANDOM:
-                return true;
-            default:
-                return false;
-        }
+        return theme != null;
     }
 
     private static MagicItem2024Table getArcanaTable(MagicItemRarity rarity) {
@@ -66,6 +58,17 @@ public final class MagicItem2024Registry {
             case VERY_RARE: return ImplementsTables.VERY_RARE;
             case LEGENDARY: return ImplementsTables.LEGENDARY;
             default: return ImplementsTables.COMMON;
+        }
+    }
+
+    private static MagicItem2024Table getRelicsTable(MagicItemRarity rarity) {
+        switch (rarity) {
+            case COMMON: return RelicsTables.COMMON;
+            case UNCOMMON: return RelicsTables.UNCOMMON;
+            case RARE: return RelicsTables.RARE;
+            case VERY_RARE: return RelicsTables.VERY_RARE;
+            case LEGENDARY: return RelicsTables.LEGENDARY;
+            default: return RelicsTables.COMMON;
         }
     }
 }
