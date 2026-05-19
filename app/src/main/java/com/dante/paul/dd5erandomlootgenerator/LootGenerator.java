@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -16,6 +17,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.RulesEdition;
+import com.dante.paul.dd5erandomlootgenerator.Settings.SettingsManager;
 import com.dante.paul.dd5erandomlootgenerator.billing.BillingManager;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -196,6 +199,27 @@ public class LootGenerator extends AppCompatActivity
         return super.onPrepareOptionsMenu(menu);
     }
 
+    private void showRulesEditionDialog() {
+        RulesEdition current = SettingsManager.getRulesEdition(this);
+        String[] labels = new String[] {
+                getString(R.string.rules_edition_2024),
+                getString(R.string.rules_edition_2014)
+        };
+        RulesEdition[] values = new RulesEdition[] {
+                RulesEdition.RULES_2024,
+                RulesEdition.RULES_2014
+        };
+        int checked = current == RulesEdition.RULES_2014 ? 1 : 0;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.rules_edition_dialog_title)
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    SettingsManager.setRulesEdition(this, values[which]);
+                    dialog.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
     public boolean about(MenuItem item){
         String aboutSummary = "D&D 5e Loot Generator v1.9";
         String about = "Developed by Paul Dante to help save DMs some time. \r\n \r\nPlease rate and provide feedback of how I can improve this app.\r\n \r\nIf you like the app and would like to make a donation: PayPal.Me/PDante \n" +
@@ -218,6 +242,10 @@ public class LootGenerator extends AppCompatActivity
         }
         if (id == R.id.action_restore_purchases) {
             if (billingManager != null) billingManager.restorePurchases();
+            return true;
+        }
+        if (id == R.id.action_rules_edition) {
+            showRulesEditionDialog();
             return true;
         }
         if (id == R.id.action_settings) {

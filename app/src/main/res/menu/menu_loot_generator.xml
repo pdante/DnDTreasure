@@ -13,6 +13,11 @@
         android:title="@string/restore_purchases"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_rules_edition"
+        android:orderInCategory="30"
+        android:title="@string/rules_edition"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/about"

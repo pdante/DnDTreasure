@@ -53,6 +53,10 @@
     <string name="remove_ads_thanks">Ads removed. Thanks for your support!</string>
     <string name="remove_ads_failed">Purchase could not be completed. Please try again.</string>
     <string name="restore_purchases">Restore Purchases</string>
+    <string name="rules_edition">Rules Edition</string>
+    <string name="rules_edition_dialog_title">Choose Rules Edition</string>
+    <string name="rules_edition_2014">2014 (Classic)</string>
+    <string name="rules_edition_2024">2024 (New)</string>
     <string name="treasure_banner_ad">ca-app-pub-9108289994838354/7302796227</string>
     <string name="spell_banner_ad">ca-app-pub-9108289994838354/8779529427</string>
     <string name="item_banner_ad">ca-app-pub-9108289994838354/2732995820</string>
