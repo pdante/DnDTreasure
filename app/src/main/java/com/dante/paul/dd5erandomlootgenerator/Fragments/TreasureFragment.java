@@ -2,7 +2,7 @@ package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +17,6 @@ import com.dante.paul.dd5erandomlootgenerator.LootList;
 import com.dante.paul.dd5erandomlootgenerator.R;
 import com.dante.paul.dd5erandomlootgenerator.TreasureCreationClasses.Treasure;
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.GenerateLootMessage;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 
 /**
  * Created by PaulD on 2015-12-10.
@@ -66,18 +64,16 @@ public class TreasureFragment extends Fragment{
         String challengeRatingString = challengeSpinner.getSelectedItem().toString();
         ChallengeRating challengeRating = getChallengeRating(challengeRatingString);
         int iterations = Integer.parseInt(iterationSpinner.getSelectedItem().toString());
-        switch (typeOfEncounter.getCheckedRadioButtonId()) {
-            case R.id.radio_individual:
-                treasure = new Treasure(challengeRating, TypeOfEncounter.INDIVIDUAL, iterations);
-                treasure.generateTreasure();
-                lootSummary = "Challenge Level " + challengeRatingString + "\nIndividual Treasure ";
-                lootSummary += " x" + iterations;
-                break;
-            default:
-                treasure = new Treasure(challengeRating, TypeOfEncounter.HORDE, iterations);
-                treasure.generateTreasure();
-                lootSummary = "Challenge Level " + challengeRatingString + "\nHoard Treasure ";
-                lootSummary += " x" + iterations;
+        if (typeOfEncounter.getCheckedRadioButtonId() == R.id.radio_individual) {
+            treasure = new Treasure(challengeRating, TypeOfEncounter.INDIVIDUAL, iterations);
+            treasure.generateTreasure();
+            lootSummary = "Challenge Level " + challengeRatingString + "\nIndividual Treasure ";
+            lootSummary += " x" + iterations;
+        } else {
+            treasure = new Treasure(challengeRating, TypeOfEncounter.HORDE, iterations);
+            treasure.generateTreasure();
+            lootSummary = "Challenge Level " + challengeRatingString + "\nHoard Treasure ";
+            lootSummary += " x" + iterations;
         }
 
         DialogFragment how = new GenerateLootMessage();
