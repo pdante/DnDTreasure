@@ -6,11 +6,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
+import com.dante.paul.dd5erandomlootgenerator.billing.BillingManager;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -22,10 +24,13 @@ import com.google.android.ump.UserMessagingPlatform;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LootGenerator extends AppCompatActivity {
+public class LootGenerator extends AppCompatActivity
+        implements BillingManager.Listener {
 
     private FrameLayout adContainer;
     private AdView adView;
+    private BillingManager billingManager;
+    private boolean adsEnabled;
     private ConsentInformation consentInformation;
     private final AtomicBoolean adsSdkInitialized = new AtomicBoolean(false);
 
@@ -37,6 +42,9 @@ public class LootGenerator extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        billingManager = new BillingManager(this, this);
+        adsEnabled = !billingManager.isAdsRemovedCached();
 
         adContainer = findViewById(R.id.ad_container);
 
@@ -57,7 +65,12 @@ public class LootGenerator extends AppCompatActivity {
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        requestConsentAndLoadAd();
+        billingManager.start();
+        if (adsEnabled) {
+            requestConsentAndLoadAd();
+        } else {
+            adContainer.setVisibility(View.GONE);
+        }
     }
 
     private void requestConsentAndLoadAd() {
@@ -84,7 +97,7 @@ public class LootGenerator extends AppCompatActivity {
         if (!adsSdkInitialized.getAndSet(true)) {
             MobileAds.initialize(this, status -> {});
         }
-        if (adView != null) return;
+        if (adView != null || !adsEnabled) return;
         adView = new AdView(this);
         adView.setAdUnitId(getString(R.string.test_banner_ad));
         adView.setAdSize(getAdaptiveBannerSize());
@@ -104,6 +117,34 @@ public class LootGenerator extends AppCompatActivity {
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth);
     }
 
+    private void removeBannerAd() {
+        adsEnabled = false;
+        if (adView != null) {
+            adView.destroy();
+            adView = null;
+        }
+        adContainer.removeAllViews();
+        adContainer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onAdsRemovedChanged(boolean adsRemoved) {
+        runOnUiThread(() -> {
+            if (adsRemoved) {
+                removeBannerAd();
+                Toast.makeText(this, R.string.remove_ads_thanks, Toast.LENGTH_LONG).show();
+            } else if (adView == null) {
+                adsEnabled = true;
+                requestConsentAndLoadAd();
+            }
+        });
+    }
+
+    @Override
+    public void onPurchaseError(@androidx.annotation.NonNull String message) {
+        runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -121,6 +162,9 @@ public class LootGenerator extends AppCompatActivity {
         if (adView != null) {
             adView.destroy();
             adView = null;
+        }
+        if (billingManager != null) {
+            billingManager.destroy();
         }
         super.onDestroy();
     }

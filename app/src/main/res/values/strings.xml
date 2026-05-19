@@ -49,6 +49,8 @@
     <string name="spells">Spells</string>
     <string name="items">Items</string>
     <string name="about">About</string>
+    <string name="remove_ads_thanks">Ads removed. Thanks for your support!</string>
+    <string name="remove_ads_failed">Purchase could not be completed. Please try again.</string>
     <string name="treasure_banner_ad">ca-app-pub-9108289994838354/7302796227</string>
     <string name="spell_banner_ad">ca-app-pub-9108289994838354/8779529427</string>
     <string name="item_banner_ad">ca-app-pub-9108289994838354/2732995820</string>
