@@ -52,10 +52,25 @@
 
                 <TextView
                     style="@style/textView_nexus5_land_small"
+                    android:id="@+id/party_level_label"
+                    android:text="@string/party_level"
+                    android:visibility="gone"
+                    android:layout_below="@id/challenge_spinner"
+                    android:layout_marginLeft="20dp"/>
+
+                <Spinner
+                    style="@style/spinner_nexus5_land_small"
+                    android:id="@+id/party_level_spinner"
+                    android:visibility="gone"
+                    android:layout_below="@id/party_level_label"
+                    android:layout_marginLeft="20dp"/>
+
+                <TextView
+                    style="@style/textView_nexus5_land_small"
                     android:id="@+id/theme_label"
                     android:text="@string/theme"
                     android:visibility="gone"
-                    android:layout_below="@id/challenge_spinner"
+                    android:layout_below="@id/party_level_spinner"
                     android:layout_marginLeft="20dp"/>
 
                 <Spinner

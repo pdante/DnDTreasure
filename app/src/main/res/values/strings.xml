@@ -58,8 +58,8 @@
     <string name="rules_edition_2014">2014 (Classic)</string>
     <string name="rules_edition_2024">2024 (New)</string>
     <string name="theme">Theme:</string>
-    <string name="tier">Tier:</string>
-    <string-array name="tier_array">
+    <string name="party_level">Party Level:</string>
+    <string-array name="party_level_array">
         <item>Tier 1 (Levels 1-4)</item>
         <item>Tier 2 (Levels 5-10)</item>
         <item>Tier 3 (Levels 11-16)</item>

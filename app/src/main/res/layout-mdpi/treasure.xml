@@ -52,6 +52,19 @@
             android:layout_marginBottom="0dp" />
 
         <TextView
+            android:id="@+id/party_level_label"
+            style="@style/textView_nexus5"
+            android:text="@string/party_level"
+            android:visibility="gone"
+            android:layout_marginTop="0dp"/>
+
+        <Spinner
+            style="@style/spinner_nexus5"
+            android:id="@+id/party_level_spinner"
+            android:visibility="gone"
+            android:layout_marginBottom="0dp" />
+
+        <TextView
             android:id="@+id/theme_label"
             style="@style/textView_nexus5"
             android:text="@string/theme"

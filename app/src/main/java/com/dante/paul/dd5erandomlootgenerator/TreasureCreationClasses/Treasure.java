@@ -8,6 +8,7 @@ import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TierOfPlay;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TypeOfEncounter;
 import com.dante.paul.dd5erandomlootgenerator.LootList;
 import com.dante.paul.dd5erandomlootgenerator.MagicItem2024.MagicItem2024Generator;
+import com.dante.paul.dd5erandomlootgenerator.MagicItem2024.Random2024Treasure;
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.MagicItemArtAndGemTables.GemsArtAndMagicItems;
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.MagicItemArtAndGemTables.HoardCoins;
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.MagicItemArtAndGemTables.IndividualCoins;
@@ -21,80 +22,81 @@ public class Treasure implements TreasureTable {
     public LootList list;
     int numberOfIterations;
 
-    private TierOfPlay tier;
+    // 2024-mode fields
+    private TierOfPlay partyTier;
     private MagicItemTheme theme;
-    private boolean use2024Magic;
+    private boolean use2024Rules;
 
     public Treasure(ChallengeRating challengeRating, TypeOfEncounter toE, int numberOfIterations) {
         this.challengeRating = challengeRating;
         list = LootList.getInstance();
         this.toE = toE;
         this.numberOfIterations = numberOfIterations;
-        this.use2024Magic = false;
+        this.use2024Rules = false;
     }
 
-    public Treasure(TierOfPlay tier, MagicItemTheme theme, int numberOfIterations) {
-        this.tier = tier;
+    public Treasure(ChallengeRating challengeRating,
+                    TypeOfEncounter toE,
+                    TierOfPlay partyTier,
+                    MagicItemTheme theme,
+                    int numberOfIterations) {
+        this.challengeRating = challengeRating;
+        this.toE = toE;
+        this.partyTier = partyTier;
         this.theme = theme;
-        this.challengeRating = tier.toChallengeRating();
-        this.toE = TypeOfEncounter.HORDE;
         this.numberOfIterations = numberOfIterations;
         this.list = LootList.getInstance();
-        this.use2024Magic = true;
+        this.use2024Rules = true;
     }
 
-    public void generateTreasure(){
-        for (int counter = 0; counter < numberOfIterations; counter ++) {
-            d100 = d.roll(100);
-            generateCoins();
-            if (toE == TypeOfEncounter.HORDE) {
-                if (use2024Magic) {
-                    generate2024Items();
-                } else {
-                    generateItems();
-                }
-            }
+    public void generateTreasure() {
+        if (use2024Rules) {
+            generate2024();
+        } else {
+            generate2014();
         }
         list.getTreasure();
     }
 
-    private void generateCoins() {
-        if (toE == TypeOfEncounter.INDIVIDUAL) {
-            IndividualCoins coins = new IndividualCoins(challengeRating, d100);
-            coins.createStuff();
-        } else {
-            HoardCoins coins = new HoardCoins(challengeRating, d100);
-            coins.createStuff();
+    private void generate2014() {
+        for (int counter = 0; counter < numberOfIterations; counter++) {
+            d100 = d.roll(100);
+            if (toE == TypeOfEncounter.INDIVIDUAL) {
+                new IndividualCoins(challengeRating, d100).createStuff();
+            } else {
+                new HoardCoins(challengeRating, d100).createStuff();
+                new GemsArtAndMagicItems(challengeRating, d100).createStuff();
+            }
         }
     }
 
-    private void generateItems(){
-        GemsArtAndMagicItems items = new GemsArtAndMagicItems(challengeRating, d100);
-        items.createStuff();
-    }
-
-    private void generate2024Items() {
-        int itemCount = countMagicItemsForTier(tier);
-        MagicItem2024Generator generator = new MagicItem2024Generator();
-        for (int i = 0; i < itemCount; i++) {
-            MagicItem2024Generator.Result result = generator.generate(tier, theme);
-            MagicItemTableObject obj = new MagicItemTableObject();
-            GenerateItemStrings strings = new GenerateItemStrings();
-            strings.setName(result.itemName);
-            strings.setMagicItemtable("(" + themeLabel(result.theme) + " — " + rarityLabel(result.rarity) + ")");
-            obj.generatedStrings = strings;
-            list.addToLoot(obj);
+    private void generate2024() {
+        for (int counter = 0; counter < numberOfIterations; counter++) {
+            if (toE == TypeOfEncounter.INDIVIDUAL) {
+                Random2024Treasure.IndividualResult money =
+                        Random2024Treasure.rollIndividual(challengeRating);
+                list.addToCoins(currencyLabel(money.currency), money.amount);
+            } else {
+                Random2024Treasure.HoardResult hoard =
+                        Random2024Treasure.rollHoard(challengeRating);
+                list.addToCoins(currencyLabel(hoard.currency), hoard.amount);
+                MagicItem2024Generator generator = new MagicItem2024Generator();
+                for (int i = 0; i < hoard.magicItemCount; i++) {
+                    MagicItem2024Generator.Result result = generator.generate(partyTier, theme);
+                    MagicItemTableObject obj = new MagicItemTableObject();
+                    GenerateItemStrings strings = new GenerateItemStrings();
+                    strings.setName(result.itemName);
+                    strings.setMagicItemtable(
+                            "(" + themeLabel(result.theme) + " — " + rarityLabel(result.rarity) + ")");
+                    obj.generatedStrings = strings;
+                    list.addToLoot(obj);
+                }
+            }
         }
     }
 
-    private int countMagicItemsForTier(TierOfPlay tier) {
-        switch (tier) {
-            case TIER_1: return 1;
-            case TIER_2: return 2;
-            case TIER_3: return 3;
-            case TIER_4: return 4;
-            default: return 1;
-        }
+    private String currencyLabel(Random2024Treasure.Currency c) {
+        return c == Random2024Treasure.Currency.PP ? "PP" : "GP";
     }
 
     private String rarityLabel(MagicItemRarity rarity) {
@@ -109,6 +111,7 @@ public class Treasure implements TreasureTable {
     }
 
     private String themeLabel(MagicItemTheme theme) {
+        if (theme == null) return "Random";
         switch (theme) {
             case ARCANA: return "Arcana";
             case ARMAMENTS: return "Armaments";
