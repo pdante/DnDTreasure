@@ -63,18 +63,20 @@ public class TreasureFragment extends Fragment {
     private void applyRulesEditionUi() {
         RulesEdition edition = SettingsManager.getRulesEdition(getActivity());
         if (edition == RulesEdition.RULES_2024) {
-            challengeLabel.setText(R.string.tier);
+            if (challengeLabel != null) challengeLabel.setText(R.string.tier);
             setSpinnerArray(challengeSpinner, R.array.tier_array);
-            themeLabel.setVisibility(View.VISIBLE);
-            themeSpinner.setVisibility(View.VISIBLE);
-            setSpinnerArray(themeSpinner, R.array.theme_array);
-            typeOfEncounter.setVisibility(View.GONE);
+            if (themeLabel != null) themeLabel.setVisibility(View.VISIBLE);
+            if (themeSpinner != null) {
+                themeSpinner.setVisibility(View.VISIBLE);
+                setSpinnerArray(themeSpinner, R.array.theme_array);
+            }
+            if (typeOfEncounter != null) typeOfEncounter.setVisibility(View.GONE);
         } else {
-            challengeLabel.setText(R.string.challenge);
+            if (challengeLabel != null) challengeLabel.setText(R.string.challenge);
             setSpinnerArray(challengeSpinner, R.array.challenge_array);
-            themeLabel.setVisibility(View.GONE);
-            themeSpinner.setVisibility(View.GONE);
-            typeOfEncounter.setVisibility(View.VISIBLE);
+            if (themeLabel != null) themeLabel.setVisibility(View.GONE);
+            if (themeSpinner != null) themeSpinner.setVisibility(View.GONE);
+            if (typeOfEncounter != null) typeOfEncounter.setVisibility(View.VISIBLE);
         }
     }
 

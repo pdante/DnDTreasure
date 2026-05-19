@@ -37,7 +37,7 @@
 
                 <TextView
                     style="@style/textView_nexus5_land"
-                    android:id="@+id/challenge"
+                    android:id="@+id/challenge_label"
                     android:text="@string/challenge"
                     android:layout_below="@+id/radio_encounter"
                     android:layout_alignLeft="@+id/challenge_spinner"
@@ -47,15 +47,29 @@
                     style="@style/spinner_nexus5_land"
                     android:id="@+id/challenge_spinner"
                     android:layout_marginBottom="0dp"
-                    android:layout_below="@id/challenge"
+                    android:layout_below="@id/challenge_label"
                     android:layout_marginLeft="20dp"/>
 
+                <TextView
+                    style="@style/textView_nexus5_land"
+                    android:id="@+id/theme_label"
+                    android:text="@string/theme"
+                    android:visibility="gone"
+                    android:layout_below="@id/challenge_spinner"
+                    android:layout_marginLeft="20dp"/>
+
+                <Spinner
+                    style="@style/spinner_nexus5_land"
+                    android:id="@+id/theme_spinner"
+                    android:visibility="gone"
+                    android:layout_below="@id/theme_label"
+                    android:layout_marginLeft="20dp"/>
 
                 <TextView
                     style="@style/textView_nexus5_land"
                     android:text="@string/iterations"
                     android:id="@+id/iteration"
-                    android:layout_below="@id/challenge_spinner"
+                    android:layout_below="@id/theme_spinner"
                     android:layout_marginLeft="20dp"/>
 
                     <Spinner
