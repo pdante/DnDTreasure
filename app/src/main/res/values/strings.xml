@@ -57,6 +57,21 @@
     <string name="rules_edition_dialog_title">Choose Rules Edition</string>
     <string name="rules_edition_2014">2014 (Classic)</string>
     <string name="rules_edition_2024">2024 (New)</string>
+    <string name="theme">Theme:</string>
+    <string name="tier">Tier:</string>
+    <string-array name="tier_array">
+        <item>Tier 1 (Levels 1-4)</item>
+        <item>Tier 2 (Levels 5-10)</item>
+        <item>Tier 3 (Levels 11-16)</item>
+        <item>Tier 4 (Levels 17-20)</item>
+    </string-array>
+    <string-array name="theme_array">
+        <item>Random</item>
+        <item>Arcana</item>
+        <item>Armaments (coming soon)</item>
+        <item>Implements (coming soon)</item>
+        <item>Relics (coming soon)</item>
+    </string-array>
     <string name="treasure_banner_ad">ca-app-pub-9108289994838354/7302796227</string>
     <string name="spell_banner_ad">ca-app-pub-9108289994838354/8779529427</string>
     <string name="item_banner_ad">ca-app-pub-9108289994838354/2732995820</string>
