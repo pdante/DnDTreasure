@@ -1,6 +1,26 @@
 apply plugin: 'com.android.application'
 
+def localPropsFile = rootProject.file('local.properties')
+def localProps = new Properties()
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+def keystoreProp = { String name ->
+    localProps.getProperty(name) ?: System.getenv(name)
+}
+
 android {
+    signingConfigs {
+        config {
+            def storePath = keystoreProp('RELEASE_STORE_FILE')
+            if (storePath) {
+                storeFile file(storePath)
+                storePassword keystoreProp('RELEASE_STORE_PASSWORD')
+                keyAlias keystoreProp('RELEASE_KEY_ALIAS')
+                keyPassword keystoreProp('RELEASE_KEY_PASSWORD')
+            }
+        }
+    }
     compileSdkVersion 23
     defaultConfig {
         applicationId "com.dante.paul.lootgeneratorfordnd5epremium"
@@ -13,6 +33,9 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystoreProp('RELEASE_STORE_FILE')) {
+                signingConfig signingConfigs.config
+            }
         }
         debug {
             debuggable true
