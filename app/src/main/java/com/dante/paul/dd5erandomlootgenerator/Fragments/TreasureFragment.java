@@ -63,6 +63,10 @@ public class TreasureFragment extends Fragment {
         Button button = view.findViewById(R.id.treasure_send);
         button.setOnClickListener(v -> generateTreasure());
 
+        if (typeOfEncounter != null) {
+            typeOfEncounter.setOnCheckedChangeListener((group, checkedId) -> applyRulesEditionUi());
+        }
+
         return view;
     }
 
@@ -95,11 +99,16 @@ public class TreasureFragment extends Fragment {
 
     private void applyRulesEditionUi() {
         RulesEdition edition = SettingsManager.getRulesEdition(getActivity());
-        int visibility = (edition == RulesEdition.RULES_2024) ? View.VISIBLE : View.GONE;
-        if (partyLevelLabel != null) partyLevelLabel.setVisibility(visibility);
-        if (partyLevelSpinner != null) partyLevelSpinner.setVisibility(visibility);
-        if (themeLabel != null) themeLabel.setVisibility(visibility);
-        if (themeSpinner != null) themeSpinner.setVisibility(visibility);
+        boolean is2024 = edition == RulesEdition.RULES_2024;
+        boolean isHoard = typeOfEncounter == null
+                || typeOfEncounter.getCheckedRadioButtonId() != R.id.radio_individual;
+        // Party Level and Theme are only meaningful for 2024 hoards (Individual
+        // is monetary-only in the 2024 DMG).
+        int magicVisibility = (is2024 && isHoard) ? View.VISIBLE : View.GONE;
+        if (partyLevelLabel != null) partyLevelLabel.setVisibility(magicVisibility);
+        if (partyLevelSpinner != null) partyLevelSpinner.setVisibility(magicVisibility);
+        if (themeLabel != null) themeLabel.setVisibility(magicVisibility);
+        if (themeSpinner != null) themeSpinner.setVisibility(magicVisibility);
     }
 
     private void setSpinnerArray(Spinner spinner, int arrayResId) {
