@@ -3,6 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.dante.paul.dd5erandomlootgenerator.LootGenerator">
     <item
+        android:id="@+id/action_remove_ads"
+        android:orderInCategory="10"
+        android:title="@string/remove_ads"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_restore_purchases"
+        android:orderInCategory="20"
+        android:title="@string/restore_purchases"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/about"

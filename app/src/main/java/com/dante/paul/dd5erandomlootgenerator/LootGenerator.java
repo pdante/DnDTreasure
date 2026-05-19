@@ -137,6 +137,7 @@ public class LootGenerator extends AppCompatActivity
                 adsEnabled = true;
                 requestConsentAndLoadAd();
             }
+            invalidateOptionsMenu();
         });
     }
 
@@ -175,6 +176,15 @@ public class LootGenerator extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem remove = menu.findItem(R.id.action_remove_ads);
+        if (remove != null) {
+            remove.setVisible(billingManager == null || !billingManager.isAdsRemovedCached());
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     public boolean about(MenuItem item){
         String aboutSummary = "D&D 5e Loot Generator v1.9";
         String about = "Developed by Paul Dante to help save DMs some time. \r\n \r\nPlease rate and provide feedback of how I can improve this app.\r\n \r\nIf you like the app and would like to make a donation: PayPal.Me/PDante \n" +
@@ -191,6 +201,14 @@ public class LootGenerator extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if (id == R.id.action_remove_ads) {
+            if (billingManager != null) billingManager.launchPurchaseFlow(this);
+            return true;
+        }
+        if (id == R.id.action_restore_purchases) {
+            if (billingManager != null) billingManager.restorePurchases();
+            return true;
+        }
         if (id == R.id.action_settings) {
             return true;
         }
