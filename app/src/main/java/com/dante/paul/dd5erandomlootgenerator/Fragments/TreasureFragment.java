@@ -1,6 +1,7 @@
 package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
 import android.app.DialogFragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ public class TreasureFragment extends Fragment {
     TextView challengeLabel, themeLabel;
     RadioGroup typeOfEncounter;
     View view;
+    private SharedPreferences.OnSharedPreferenceChangeListener prefsListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,6 +60,27 @@ public class TreasureFragment extends Fragment {
     public void onResume() {
         super.onResume();
         applyRulesEditionUi();
+        SharedPreferences prefs = getActivity()
+                .getApplicationContext()
+                .getSharedPreferences("LootGenPref", android.content.Context.MODE_PRIVATE);
+        prefsListener = (sharedPreferences, key) -> {
+            if ("rules_edition".equals(key) && isAdded()) {
+                applyRulesEditionUi();
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(prefsListener);
+    }
+
+    @Override
+    public void onPause() {
+        if (prefsListener != null) {
+            getActivity()
+                    .getApplicationContext()
+                    .getSharedPreferences("LootGenPref", android.content.Context.MODE_PRIVATE)
+                    .unregisterOnSharedPreferenceChangeListener(prefsListener);
+            prefsListener = null;
+        }
+        super.onPause();
     }
 
     private void applyRulesEditionUi() {
