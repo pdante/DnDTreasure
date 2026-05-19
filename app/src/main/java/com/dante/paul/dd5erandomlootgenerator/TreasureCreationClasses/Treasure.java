@@ -96,7 +96,7 @@ public class Treasure implements TreasureTable {
     }
 
     private String currencyLabel(Random2024Treasure.Currency c) {
-        return c == Random2024Treasure.Currency.PP ? "PP" : "GP";
+        return c == Random2024Treasure.Currency.PP ? "pp" : "gp";
     }
 
     private String rarityLabel(MagicItemRarity rarity) {
