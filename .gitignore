@@ -3,19 +3,17 @@
 *.keystore
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
+/.idea/
 .DS_Store
 /build
 /captures
-.idea/encodings.xml
 app/app-release.apk
+app/release/output.json
+app/release/app-release.apk
+app/google-services.json
 treasure/res/512 pixels/AppIconResizer_201609181657_e6014e2a9e75f7f5ce6c48444ae76b80.zip
 treasure/res/114 pixels/AppIconResizer_201609181655_86d444bed6bc4d5664bdc762ffa8796e.zip
 treasure.zip
 sh.exe.stackdump
 projectFilesBackup1/.idea/workspace.xml
 projectFilesBackup/.idea/workspace.xml
-app/release/output.json
-app/release/app-release.apk
-app/google-services.json
