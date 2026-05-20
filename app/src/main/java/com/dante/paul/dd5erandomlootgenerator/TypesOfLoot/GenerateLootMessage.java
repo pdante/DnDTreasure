@@ -37,11 +37,14 @@ public class GenerateLootMessage extends DialogFragment {
                 .setTitle(lootTitle)
                 .setMessage(lootMessage);
 
+        // AlertDialog stacks buttons in reverse on phones: Positive ends up on
+        // top, Neutral on the bottom. The slots below produce the visual order
+        // Copy and Commit / Copy and Dismiss / Cancel from top to bottom.
         if (itemNames != null && itemNames.length > 0 && partyTierOrdinal >= 0) {
             final CampaignStore store = new CampaignStore(getActivity());
             final Campaign active = store.getActive();
             final TierOfPlay tier = TierOfPlay.values()[partyTierOrdinal];
-            builder.setNeutralButton(R.string.copy_and_commit_to_campaign, (dialog, which) -> {
+            builder.setPositiveButton(R.string.copy_and_commit_to_campaign, (dialog, which) -> {
                 copyToClipboard(lootMessage);
                 List<AwardedItem> built = buildAwardedItems(itemNames, itemRarities, itemThemes, tier);
                 active.addAwardedItems(built);
@@ -51,7 +54,7 @@ public class GenerateLootMessage extends DialogFragment {
         }
 
         builder.setNegativeButton("Copy and Dismiss", (dialog, which) -> copyToClipboard(lootMessage));
-        builder.setPositiveButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
+        builder.setNeutralButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
 
         return builder.create();
     }
