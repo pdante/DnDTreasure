@@ -47,6 +47,14 @@ public class LootGenerator extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
+        // The pager's tab composition changes between 2014 and 2024 (Tracker
+        // tab is 2024-only). FragmentStatePagerAdapter restores fragments by
+        // position, so stale fragments from before an edition change would
+        // land at the wrong positions. Drop the saved fragment state to
+        // force a fresh build of every tab.
+        if (savedInstanceState != null) {
+            savedInstanceState.remove("android:support:fragments");
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loot_generator);
 
