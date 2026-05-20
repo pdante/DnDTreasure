@@ -7,13 +7,11 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.dante.paul.dd5erandomlootgenerator.Fragments.ItemsFragment;
 import com.dante.paul.dd5erandomlootgenerator.Fragments.SpellsFragment;
+import com.dante.paul.dd5erandomlootgenerator.Fragments.TrackerFragment;
 import com.dante.paul.dd5erandomlootgenerator.Fragments.TreasureFragment;
 
-/**
- * Created by PaulD on 2015-12-10.
- */
 public class PagerAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
+    private final int mNumOfTabs;
 
     public PagerAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
@@ -22,19 +20,12 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-
         switch (position) {
-            case 0:
-                TreasureFragment tab1 = new TreasureFragment();
-                return tab1;
-            case 1:
-                ItemsFragment tab2 = new ItemsFragment();
-                return tab2;
-            case 2:
-                SpellsFragment tab3 = new SpellsFragment();
-                return tab3;
-            default:
-                return null;
+            case 0: return new TreasureFragment();
+            case 1: return new ItemsFragment();
+            case 2: return new SpellsFragment();
+            case 3: return new TrackerFragment();
+            default: return null;
         }
     }
 

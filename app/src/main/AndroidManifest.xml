@@ -26,10 +26,5 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".Tracker.CampaignTrackerActivity"
-            android:exported="false"
-            android:label="@string/campaign_tracker"
-            android:theme="@style/AppTheme"/>
     </application>
 </manifest>

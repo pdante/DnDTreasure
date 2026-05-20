@@ -21,7 +21,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.RulesEdition;
 import com.dante.paul.dd5erandomlootgenerator.Settings.SettingsManager;
-import com.dante.paul.dd5erandomlootgenerator.Tracker.CampaignTrackerActivity;
 import com.dante.paul.dd5erandomlootgenerator.billing.BillingManager;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -65,7 +64,12 @@ public class LootGenerator extends AppCompatActivity
         SharedPreferences prefs = getApplicationContext()
                 .getSharedPreferences("LootGenPref", Context.MODE_PRIVATE);
         titlePrefsListener = (sharedPreferences, key) -> {
-            if ("rules_edition".equals(key)) updateToolbarTitle();
+            if ("rules_edition".equals(key)) {
+                updateToolbarTitle();
+                // Tabs change between editions (Tracker tab is 2024-only);
+                // simplest robust refresh is to recreate the activity.
+                recreate();
+            }
         };
         prefs.registerOnSharedPreferenceChangeListener(titlePrefsListener);
 
@@ -74,10 +78,12 @@ public class LootGenerator extends AppCompatActivity
 
         adContainer = findViewById(R.id.ad_container);
 
+        boolean is2024 = SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024;
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Treasure"));
         tabLayout.addTab(tabLayout.newTab().setText("Items"));
         tabLayout.addTab(tabLayout.newTab().setText("Spells"));
+        if (is2024) tabLayout.addTab(tabLayout.newTab().setText("Tracker"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = findViewById(R.id.pager);
@@ -274,10 +280,6 @@ public class LootGenerator extends AppCompatActivity
         }
         if (id == R.id.action_rules_edition) {
             showRulesEditionDialog();
-            return true;
-        }
-        if (id == R.id.action_campaign_tracker) {
-            startActivity(new android.content.Intent(this, CampaignTrackerActivity.class));
             return true;
         }
         if (id == R.id.action_settings) {

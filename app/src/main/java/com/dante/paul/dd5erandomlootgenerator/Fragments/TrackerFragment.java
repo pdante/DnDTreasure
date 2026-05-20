@@ -1,11 +1,11 @@
-package com.dante.paul.dd5erandomlootgenerator.Tracker;
+package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -17,16 +17,21 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TierOfPlay;
 import com.dante.paul.dd5erandomlootgenerator.R;
+import com.dante.paul.dd5erandomlootgenerator.Tracker.Campaign;
+import com.dante.paul.dd5erandomlootgenerator.Tracker.CampaignStore;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CampaignTrackerActivity extends AppCompatActivity {
+public class TrackerFragment extends Fragment {
+
+    private static final TierOfPlay[] TIERS = TierOfPlay.values();
+    private static final MagicItemRarity[] RARITIES = MagicItemRarity.values();
 
     private CampaignStore store;
     private Spinner campaignSpinner;
@@ -34,32 +39,24 @@ public class CampaignTrackerActivity extends AppCompatActivity {
     private TextView totalView;
     private List<Campaign> campaigns;
     private boolean ignoreNextSelection;
-
-    private static final TierOfPlay[] TIERS = TierOfPlay.values();
-    private static final MagicItemRarity[] RARITIES = MagicItemRarity.values();
+    private View view;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_campaign_tracker);
-        setTitle(R.string.campaign_tracker);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.tracker, container, false);
+        store = new CampaignStore(getActivity());
+        campaignSpinner = view.findViewById(R.id.tracker_campaign_spinner);
+        grid = view.findViewById(R.id.tracker_grid);
+        totalView = view.findViewById(R.id.tracker_total);
 
-        store = new CampaignStore(this);
-        campaignSpinner = findViewById(R.id.tracker_campaign_spinner);
-        grid = findViewById(R.id.tracker_grid);
-        totalView = findViewById(R.id.tracker_total);
-
-        findViewById(R.id.tracker_new).setOnClickListener(v -> promptNewCampaign());
-        findViewById(R.id.tracker_rename).setOnClickListener(v -> promptRenameCampaign());
-        findViewById(R.id.tracker_reset).setOnClickListener(v -> promptResetCampaign());
-        findViewById(R.id.tracker_delete).setOnClickListener(v -> promptDeleteCampaign());
+        view.findViewById(R.id.tracker_new).setOnClickListener(v -> promptNewCampaign());
+        view.findViewById(R.id.tracker_rename).setOnClickListener(v -> promptRenameCampaign());
+        view.findViewById(R.id.tracker_reset).setOnClickListener(v -> promptResetCampaign());
+        view.findViewById(R.id.tracker_delete).setOnClickListener(v -> promptDeleteCampaign());
 
         campaignSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
                 if (ignoreNextSelection) {
                     ignoreNextSelection = false;
                     return;
@@ -73,22 +70,14 @@ public class CampaignTrackerActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+        return view;
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         refreshCampaignSpinner();
         rebuildGrid();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void refreshCampaignSpinner() {
@@ -96,7 +85,7 @@ public class CampaignTrackerActivity extends AppCompatActivity {
         List<String> labels = new ArrayList<>();
         for (Campaign c : campaigns) labels.add(c.getName());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, labels);
+                getActivity(), android.R.layout.simple_spinner_item, labels);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ignoreNextSelection = true;
         campaignSpinner.setAdapter(adapter);
@@ -112,18 +101,13 @@ public class CampaignTrackerActivity extends AppCompatActivity {
     private void rebuildGrid() {
         grid.removeAllViews();
         Campaign active = store.getActive();
-
         grid.addView(buildHeaderRow());
-
-        for (TierOfPlay tier : TIERS) {
-            grid.addView(buildTierRow(active, tier));
-        }
-
+        for (TierOfPlay tier : TIERS) grid.addView(buildTierRow(active, tier));
         totalView.setText(getString(R.string.tracker_total_format, active.totalCount()));
     }
 
     private TableRow buildHeaderRow() {
-        TableRow row = new TableRow(this);
+        TableRow row = new TableRow(getActivity());
         row.addView(headerCell(getString(R.string.tracker_header_tier)));
         row.addView(headerCell(getString(R.string.tracker_rarity_common)));
         row.addView(headerCell(getString(R.string.tracker_rarity_uncommon)));
@@ -134,20 +118,19 @@ public class CampaignTrackerActivity extends AppCompatActivity {
     }
 
     private TableRow buildTierRow(Campaign campaign, TierOfPlay tier) {
-        TableRow row = new TableRow(this);
+        TableRow row = new TableRow(getActivity());
         row.addView(headerCell(tierLabel(tier)));
-        for (MagicItemRarity rarity : RARITIES) {
-            row.addView(buildCountCell(campaign, tier, rarity));
-        }
+        for (MagicItemRarity rarity : RARITIES) row.addView(buildCountCell(campaign, tier, rarity));
         return row;
     }
 
     private TextView headerCell(String text) {
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(getActivity());
         tv.setText(text);
-        tv.setTextSize(12);
+        tv.setTextSize(13);
         tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.BOLD);
-        tv.setPadding(dp(6), dp(6), dp(6), dp(6));
+        tv.setTextColor(Color.BLACK);
+        tv.setPadding(dp(4), dp(6), dp(4), dp(6));
         tv.setGravity(Gravity.CENTER);
         return tv;
     }
@@ -155,10 +138,10 @@ public class CampaignTrackerActivity extends AppCompatActivity {
     private TextView buildCountCell(Campaign campaign, TierOfPlay tier, MagicItemRarity rarity) {
         int count = campaign.getCount(tier, rarity);
         int target = Campaign.targetForTierAndRarity(tier, rarity);
-
-        TextView tv = new TextView(this);
-        tv.setPadding(dp(6), dp(10), dp(6), dp(10));
+        TextView tv = new TextView(getActivity());
+        tv.setPadding(dp(4), dp(10), dp(4), dp(10));
         tv.setGravity(Gravity.CENTER);
+        tv.setTextSize(16);
         if (target == 0 && count == 0) {
             tv.setText("—");
             tv.setTextColor(Color.GRAY);
@@ -168,6 +151,8 @@ public class CampaignTrackerActivity extends AppCompatActivity {
                 tv.setTextColor(Color.parseColor("#C62828"));
             } else if (target > 0 && count == target) {
                 tv.setTextColor(Color.parseColor("#2E7D32"));
+            } else {
+                tv.setTextColor(Color.BLACK);
             }
         }
         tv.setClickable(true);
@@ -176,13 +161,13 @@ public class CampaignTrackerActivity extends AppCompatActivity {
     }
 
     private void promptEditCell(Campaign campaign, TierOfPlay tier, MagicItemRarity rarity) {
-        EditText input = new EditText(this);
+        EditText input = new EditText(getActivity());
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         input.setText(String.valueOf(campaign.getCount(tier, rarity)));
         input.setSelectAllOnFocus(true);
         String title = getString(R.string.tracker_edit_dialog_title_format,
                 tierLabel(tier), rarityLabel(rarity));
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(getActivity())
                 .setTitle(title)
                 .setView(wrapWithPadding(input))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -201,9 +186,9 @@ public class CampaignTrackerActivity extends AppCompatActivity {
     }
 
     private void promptNewCampaign() {
-        EditText input = new EditText(this);
+        EditText input = new EditText(getActivity());
         input.setHint("Campaign name");
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_new_dialog_title)
                 .setView(wrapWithPadding(input))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -220,10 +205,10 @@ public class CampaignTrackerActivity extends AppCompatActivity {
 
     private void promptRenameCampaign() {
         Campaign active = store.getActive();
-        EditText input = new EditText(this);
+        EditText input = new EditText(getActivity());
         input.setText(active.getName());
         input.setSelectAllOnFocus(true);
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_rename_dialog_title)
                 .setView(wrapWithPadding(input))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -238,7 +223,7 @@ public class CampaignTrackerActivity extends AppCompatActivity {
 
     private void promptResetCampaign() {
         Campaign active = store.getActive();
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_reset_confirm_title)
                 .setMessage(getString(R.string.tracker_reset_confirm_message, active.getName()))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -251,21 +236,21 @@ public class CampaignTrackerActivity extends AppCompatActivity {
 
     private void promptDeleteCampaign() {
         Campaign active = store.getActive();
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_delete_confirm_title)
                 .setMessage(getString(R.string.tracker_delete_confirm_message, active.getName()))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     store.deleteCampaign(active.getId());
                     refreshCampaignSpinner();
                     rebuildGrid();
-                    Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Deleted", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
     private View wrapWithPadding(View child) {
-        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+        android.widget.FrameLayout container = new android.widget.FrameLayout(getActivity());
         int pad = dp(16);
         container.setPadding(pad, dp(8), pad, 0);
         child.setLayoutParams(new ViewGroup.LayoutParams(
@@ -297,5 +282,4 @@ public class CampaignTrackerActivity extends AppCompatActivity {
             case LEGENDARY: default: return getString(R.string.tracker_rarity_legendary);
         }
     }
-
 }
