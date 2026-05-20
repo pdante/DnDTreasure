@@ -118,8 +118,8 @@ public class TrackerFragment extends Fragment {
         row.addView(headerCell(getString(R.string.tracker_rarity_common)));
         row.addView(headerCell(getString(R.string.tracker_rarity_uncommon)));
         row.addView(headerCell(getString(R.string.tracker_rarity_rare)));
-        row.addView(headerCell(getString(R.string.tracker_rarity_very_rare)));
-        row.addView(headerCell(getString(R.string.tracker_rarity_legendary)));
+        row.addView(headerCell(getString(R.string.tracker_rarity_very_rare_short)));
+        row.addView(headerCell(getString(R.string.tracker_rarity_legendary_short)));
         return row;
     }
 

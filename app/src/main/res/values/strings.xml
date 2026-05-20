@@ -80,6 +80,8 @@
     <string name="tracker_rarity_rare">Rare</string>
     <string name="tracker_rarity_very_rare">Very Rare</string>
     <string name="tracker_rarity_legendary">Legendary</string>
+    <string name="tracker_rarity_very_rare_short">V. Rare</string>
+    <string name="tracker_rarity_legendary_short">Legend.</string>
     <string name="tracker_tier_1">Tier 1 (1–4)</string>
     <string name="tracker_tier_2">Tier 2 (5–10)</string>
     <string name="tracker_tier_3">Tier 3 (11–16)</string>
