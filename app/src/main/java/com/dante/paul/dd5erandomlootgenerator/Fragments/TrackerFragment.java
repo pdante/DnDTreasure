@@ -2,6 +2,7 @@ package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.view.WindowManager;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -172,10 +173,10 @@ public class TrackerFragment extends Fragment {
         input.setSelectAllOnFocus(true);
         String title = getString(R.string.tracker_edit_dialog_title_format,
                 tierLabel(tier), rarityLabel(rarity));
-        new AlertDialog.Builder(getActivity())
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(title)
                 .setView(wrapWithPadding(input))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                .setPositiveButton(android.R.string.ok, (d, which) -> {
                     int value;
                     try {
                         value = Integer.parseInt(input.getText().toString().trim());
@@ -187,16 +188,17 @@ public class TrackerFragment extends Fragment {
                     rebuildGrid();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        showKeyboardWith(dialog, input);
     }
 
     private void promptNewCampaign() {
         EditText input = new EditText(getActivity());
         input.setHint("Campaign name");
-        new AlertDialog.Builder(getActivity())
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_new_dialog_title)
                 .setView(wrapWithPadding(input))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                .setPositiveButton(android.R.string.ok, (d, which) -> {
                     String name = input.getText().toString().trim();
                     if (name.isEmpty()) return;
                     Campaign created = store.createCampaign(name);
@@ -205,7 +207,8 @@ public class TrackerFragment extends Fragment {
                     rebuildGrid();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        showKeyboardWith(dialog, input);
     }
 
     private void promptRenameCampaign() {
@@ -213,17 +216,27 @@ public class TrackerFragment extends Fragment {
         EditText input = new EditText(getActivity());
         input.setText(active.getName());
         input.setSelectAllOnFocus(true);
-        new AlertDialog.Builder(getActivity())
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_rename_dialog_title)
                 .setView(wrapWithPadding(input))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                .setPositiveButton(android.R.string.ok, (d, which) -> {
                     String name = input.getText().toString().trim();
                     if (name.isEmpty()) return;
                     store.renameCampaign(active.getId(), name);
                     refreshCampaignSpinner();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        showKeyboardWith(dialog, input);
+    }
+
+    private void showKeyboardWith(AlertDialog dialog, EditText input) {
+        input.requestFocus();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+        dialog.show();
     }
 
     private void promptResetCampaign() {
