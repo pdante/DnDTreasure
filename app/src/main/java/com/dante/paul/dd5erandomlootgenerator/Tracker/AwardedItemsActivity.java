@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemTheme;
@@ -32,6 +33,9 @@ public class AwardedItemsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_awarded_items);
 
+        Toolbar toolbar = findViewById(R.id.awarded_items_toolbar);
+        setSupportActionBar(toolbar);
+
         String campaignId = getIntent().getStringExtra(EXTRA_CAMPAIGN_ID);
         CampaignStore store = new CampaignStore(this);
         Campaign campaign = null;
@@ -45,6 +49,7 @@ public class AwardedItemsActivity extends AppCompatActivity {
         setTitle(getString(R.string.awarded_items_title) + " — " + campaign.getName());
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
         LinearLayout container = findViewById(R.id.awarded_items_container);
@@ -93,26 +98,27 @@ public class AwardedItemsActivity extends AppCompatActivity {
         TextView tv = new TextView(this);
         tv.setText(text);
         tv.setTextColor(Color.BLACK);
-        tv.setTextSize(16);
+        tv.setTextSize(20);
         tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.BOLD);
-        tv.setPadding(0, dp(4), 0, dp(4));
+        tv.setPadding(0, dp(8), 0, dp(4));
         return tv;
     }
 
     private TextView itemRow(AwardedItem item) {
         TextView tv = new TextView(this);
         String suffix = themeLabel(item.theme) + " — " + rarityLabel(item.rarity);
-        tv.setText("• " + item.name + "  (" + suffix + ")");
+        tv.setText("•  " + item.name + "  (" + suffix + ")");
         tv.setTextColor(Color.BLACK);
-        tv.setTextSize(15);
-        tv.setPadding(dp(8), dp(2), 0, dp(2));
+        tv.setTextSize(18);
+        tv.setPadding(dp(8), dp(4), 0, dp(4));
         return tv;
     }
 
     private TextView emptyView() {
         TextView tv = new TextView(this);
         tv.setText(R.string.awarded_items_empty);
-        tv.setTextSize(16);
+        tv.setTextSize(20);
+        tv.setTextColor(Color.BLACK);
         tv.setGravity(Gravity.CENTER);
         tv.setPadding(0, dp(32), 0, 0);
         return tv;

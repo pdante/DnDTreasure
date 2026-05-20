@@ -30,7 +30,7 @@
             android:name=".Tracker.AwardedItemsActivity"
             android:exported="false"
             android:label="@string/awarded_items_title"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>
 </manifest>
