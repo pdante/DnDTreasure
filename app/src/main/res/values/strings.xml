@@ -85,6 +85,9 @@
     <string name="tracker_tier_3">Tier 3 (11–16)</string>
     <string name="tracker_tier_4">Tier 4 (17–20)</string>
     <string name="copy_and_commit_to_campaign">Copy and Commit to Campaign</string>
+    <string name="tracker_view_history">View Awarded Items</string>
+    <string name="awarded_items_title">Awarded Items</string>
+    <string name="awarded_items_empty">No items have been committed to this campaign yet.</string>
     <string name="commit_to_campaign_done">Loot copied and added to campaign tracker.</string>
     <string name="theme">Theme:</string>
     <string name="party_level">Party Level:</string>

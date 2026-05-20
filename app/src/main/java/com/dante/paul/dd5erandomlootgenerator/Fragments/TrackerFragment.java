@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TierOfPlay;
 import com.dante.paul.dd5erandomlootgenerator.R;
+import com.dante.paul.dd5erandomlootgenerator.Tracker.AwardedItemsActivity;
 import com.dante.paul.dd5erandomlootgenerator.Tracker.Campaign;
 import com.dante.paul.dd5erandomlootgenerator.Tracker.CampaignStore;
 
@@ -53,6 +54,10 @@ public class TrackerFragment extends Fragment {
         view.findViewById(R.id.tracker_rename).setOnClickListener(v -> promptRenameCampaign());
         view.findViewById(R.id.tracker_reset).setOnClickListener(v -> promptResetCampaign());
         view.findViewById(R.id.tracker_delete).setOnClickListener(v -> promptDeleteCampaign());
+        view.findViewById(R.id.tracker_view_history).setOnClickListener(v -> {
+            Campaign active = store.getActive();
+            startActivity(AwardedItemsActivity.intent(getActivity(), active.getId()));
+        });
 
         campaignSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
