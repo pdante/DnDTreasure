@@ -43,13 +43,6 @@ public class ItemsFragment extends Fragment {
 
         setSpinnerArray(challengeSpinner, R.array.challenge_array);
 
-        String[] iterationArray = new String[500];
-        for (int i = 0; i < 500; i++) iterationArray[i] = Integer.toString(i + 1);
-        ArrayAdapter<CharSequence> iterAdapter = new ArrayAdapter<>(
-                getActivity(), R.layout.spinner, iterationArray);
-        iterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        iterationSpinner.setAdapter(iterAdapter);
-
         if (partyLevelSpinner != null) setSpinnerArray(partyLevelSpinner, R.array.party_level_array);
         if (themeSpinner != null) setSpinnerArray(themeSpinner, R.array.theme_array);
 
@@ -100,6 +93,16 @@ public class ItemsFragment extends Fragment {
         if (partyLevelSpinner != null) partyLevelSpinner.setVisibility(magicVisibility);
         if (themeLabel != null) themeLabel.setVisibility(magicVisibility);
         if (themeSpinner != null) themeSpinner.setVisibility(magicVisibility);
+        populateIterationSpinner(is2024 ? 20 : 500);
+    }
+
+    private void populateIterationSpinner(int max) {
+        String[] arr = new String[max];
+        for (int i = 0; i < max; i++) arr[i] = Integer.toString(i + 1);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
+                getActivity(), R.layout.spinner, arr);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        iterationSpinner.setAdapter(adapter);
     }
 
     private void setSpinnerArray(Spinner spinner, int arrayResId) {

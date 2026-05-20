@@ -45,6 +45,7 @@
     <string name="hoard">Hoard</string>
     <string name="iterations_spinner">Iterations Spinner</string>
     <string name="iterations">Number of Times to Run:</string>
+    <string name="number_of_items">Number of items:</string>
     <string name="treasure">Treasure</string>
     <string name="spells">Spells</string>
     <string name="items">Items</string>

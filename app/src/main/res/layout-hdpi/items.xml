@@ -55,7 +55,7 @@
 
         <TextView
             style="@style/textView_nexus5"
-            android:text="@string/iterations" />
+            android:text="@string/number_of_items" />
 
         <Spinner
             style="@style/spinner_nexus5"

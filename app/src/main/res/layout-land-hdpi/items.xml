@@ -58,7 +58,7 @@
 
     <TextView
         style="@style/textView_nexus5_land_small"
-        android:text="@string/iterations"
+        android:text="@string/number_of_items"
         android:id="@+id/iteration"
         android:layout_below="@id/theme_spinner"
         android:layout_marginLeft="20dp"/>
