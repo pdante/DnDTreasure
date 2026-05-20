@@ -18,6 +18,11 @@
         android:title="@string/rules_edition"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_campaign_tracker"
+        android:orderInCategory="40"
+        android:title="@string/campaign_tracker"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/about"

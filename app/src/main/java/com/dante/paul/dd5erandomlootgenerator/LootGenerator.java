@@ -21,6 +21,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.RulesEdition;
 import com.dante.paul.dd5erandomlootgenerator.Settings.SettingsManager;
+import com.dante.paul.dd5erandomlootgenerator.Tracker.CampaignTrackerActivity;
 import com.dante.paul.dd5erandomlootgenerator.billing.BillingManager;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -273,6 +274,10 @@ public class LootGenerator extends AppCompatActivity
         }
         if (id == R.id.action_rules_edition) {
             showRulesEditionDialog();
+            return true;
+        }
+        if (id == R.id.action_campaign_tracker) {
+            startActivity(new android.content.Intent(this, CampaignTrackerActivity.class));
             return true;
         }
         if (id == R.id.action_settings) {
