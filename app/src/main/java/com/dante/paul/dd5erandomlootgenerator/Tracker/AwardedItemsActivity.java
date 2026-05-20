@@ -8,8 +8,12 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemTheme;
@@ -30,8 +34,15 @@ public class AwardedItemsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_awarded_items);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.awarded_items_root), (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         Toolbar toolbar = findViewById(R.id.awarded_items_toolbar);
         setSupportActionBar(toolbar);
