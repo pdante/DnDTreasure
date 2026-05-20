@@ -81,14 +81,14 @@ public class LootGenerator extends AppCompatActivity
         boolean is2024 = SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024;
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Treasure"));
+        if (is2024) tabLayout.addTab(tabLayout.newTab().setText("Tracker"));
         tabLayout.addTab(tabLayout.newTab().setText("Items"));
         tabLayout.addTab(tabLayout.newTab().setText("Spells"));
-        if (is2024) tabLayout.addTab(tabLayout.newTab().setText("Tracker"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = findViewById(R.id.pager);
         final PagerAdapter adapter = new PagerAdapter(
-                getSupportFragmentManager(), tabLayout.getTabCount());
+                getSupportFragmentManager(), is2024);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

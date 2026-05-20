@@ -11,26 +11,34 @@ import com.dante.paul.dd5erandomlootgenerator.Fragments.TrackerFragment;
 import com.dante.paul.dd5erandomlootgenerator.Fragments.TreasureFragment;
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
-    private final int mNumOfTabs;
+    private final boolean includeTracker;
 
-    public PagerAdapter(FragmentManager fm, int NumOfTabs) {
+    public PagerAdapter(FragmentManager fm, boolean includeTracker) {
         super(fm);
-        this.mNumOfTabs = NumOfTabs;
+        this.includeTracker = includeTracker;
     }
 
     @Override
     public Fragment getItem(int position) {
+        if (includeTracker) {
+            switch (position) {
+                case 0: return new TreasureFragment();
+                case 1: return new TrackerFragment();
+                case 2: return new ItemsFragment();
+                case 3: return new SpellsFragment();
+                default: return null;
+            }
+        }
         switch (position) {
             case 0: return new TreasureFragment();
             case 1: return new ItemsFragment();
             case 2: return new SpellsFragment();
-            case 3: return new TrackerFragment();
             default: return null;
         }
     }
 
     @Override
     public int getCount() {
-        return mNumOfTabs;
+        return includeTracker ? 4 : 3;
     }
 }
