@@ -26,6 +26,7 @@ public class Treasure implements TreasureTable {
     private TierOfPlay partyTier;
     private MagicItemTheme theme;
     private boolean use2024Rules;
+    private final int[] generatedRarityCounts = new int[MagicItemRarity.values().length];
 
     public Treasure(ChallengeRating challengeRating, TypeOfEncounter toE, int numberOfIterations) {
         this.challengeRating = challengeRating;
@@ -83,6 +84,7 @@ public class Treasure implements TreasureTable {
                 MagicItem2024Generator generator = new MagicItem2024Generator();
                 for (int i = 0; i < hoard.magicItemCount; i++) {
                     MagicItem2024Generator.Result result = generator.generate(partyTier, theme);
+                    generatedRarityCounts[result.rarity.ordinal()]++;
                     MagicItemTableObject obj = new MagicItemTableObject();
                     GenerateItemStrings strings = new GenerateItemStrings();
                     strings.setName(result.itemName);
@@ -93,6 +95,14 @@ public class Treasure implements TreasureTable {
                 }
             }
         }
+    }
+
+    public int[] getGeneratedRarityCounts() {
+        return generatedRarityCounts.clone();
+    }
+
+    public TierOfPlay getPartyTier() {
+        return partyTier;
     }
 
     private String currencyLabel(Random2024Treasure.Currency c) {

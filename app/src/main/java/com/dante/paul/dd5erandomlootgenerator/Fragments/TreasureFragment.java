@@ -150,6 +150,10 @@ public class TreasureFragment extends Fragment {
         Bundle args = new Bundle();
         args.putString("loot_summary", lootSummary);
         args.putString("loot", list.getTreasure());
+        if (edition == RulesEdition.RULES_2024) {
+            args.putIntArray("rarity_counts", treasure.getGeneratedRarityCounts());
+            args.putInt("party_tier", treasure.getPartyTier().ordinal());
+        }
         how.setArguments(args);
         how.show(getActivity().getFragmentManager(), "tag");
     }
