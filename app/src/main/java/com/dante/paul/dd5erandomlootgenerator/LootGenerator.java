@@ -47,14 +47,6 @@ public class LootGenerator extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
-        // The pager's tab composition changes between 2014 and 2024 (Tracker
-        // tab is 2024-only). FragmentStatePagerAdapter restores fragments by
-        // position, so stale fragments from before an edition change would
-        // land at the wrong positions. Drop the saved fragment state to
-        // force a fresh build of every tab.
-        if (savedInstanceState != null) {
-            savedInstanceState.remove("android:support:fragments");
-        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loot_generator);
 
@@ -74,9 +66,17 @@ public class LootGenerator extends AppCompatActivity
         titlePrefsListener = (sharedPreferences, key) -> {
             if ("rules_edition".equals(key)) {
                 updateToolbarTitle();
-                // Tabs change between editions (Tracker tab is 2024-only);
-                // simplest robust refresh is to recreate the activity.
-                recreate();
+                // Tabs change between editions (Tracker is 2024-only).
+                // recreate() reuses saved state, which means stale fragments
+                // end up at the wrong positions when the tab list changes.
+                // finish + new Intent guarantees a fresh activity with no
+                // saved fragment / view-pager state to restore.
+                android.content.Intent restart =
+                        new android.content.Intent(this, LootGenerator.class);
+                restart.addFlags(android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                finish();
+                startActivity(restart);
+                overridePendingTransition(0, 0);
             }
         };
         prefs.registerOnSharedPreferenceChangeListener(titlePrefsListener);
