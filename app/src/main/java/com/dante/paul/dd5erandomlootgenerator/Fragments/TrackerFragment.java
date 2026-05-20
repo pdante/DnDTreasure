@@ -231,6 +231,9 @@ public class TrackerFragment extends Fragment {
     }
 
     private void showKeyboardWith(AlertDialog dialog, EditText input) {
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            input.setAutoHandwritingEnabled(false);
+        }
         input.requestFocus();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setSoftInputMode(

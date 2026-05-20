@@ -47,7 +47,13 @@ public class LootGenerator extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
-        super.onCreate(savedInstanceState);
+        // The pager's tab composition changes between editions (Tracker is
+        // 2024-only), so any restored fragment / ViewPager state from a
+        // previous activity instance can land at the wrong positions.
+        // Always start fresh — no saved state restoration. The cost is
+        // losing in-fragment scroll/selection state on rotation, which is
+        // acceptable for this app.
+        super.onCreate(null);
         setContentView(R.layout.activity_loot_generator);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_layout), (v, insets) -> {
