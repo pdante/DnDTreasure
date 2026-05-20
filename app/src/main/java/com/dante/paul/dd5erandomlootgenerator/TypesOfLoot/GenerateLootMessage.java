@@ -21,9 +21,9 @@ public class GenerateLootMessage extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();
-        String lootMessage = args.getString("loot", "");
+        final String lootMessage = args.getString("loot", "");
         String lootTitle = args.getString("loot_summary", "");
-        int[] rarityCounts = args.getIntArray("rarity_counts");
+        final int[] rarityCounts = args.getIntArray("rarity_counts");
         int partyTierOrdinal = args.getInt("party_tier", -1);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -31,25 +31,26 @@ public class GenerateLootMessage extends DialogFragment {
                 .setMessage(lootMessage);
 
         if (rarityCounts != null && partyTierOrdinal >= 0 && hasAnyCounts(rarityCounts)) {
-            CampaignStore store = new CampaignStore(getActivity());
-            Campaign active = store.getActive();
-            TierOfPlay tier = TierOfPlay.values()[partyTierOrdinal];
-            String commitLabel = getString(R.string.commit_to_campaign_format, active.getName());
-            builder.setNeutralButton(commitLabel, (dialog, which) -> {
+            final CampaignStore store = new CampaignStore(getActivity());
+            final Campaign active = store.getActive();
+            final TierOfPlay tier = TierOfPlay.values()[partyTierOrdinal];
+            builder.setNeutralButton(R.string.copy_and_commit_to_campaign, (dialog, which) -> {
+                copyToClipboard(lootMessage);
                 applyCountsToCampaign(store, active, tier, rarityCounts);
                 Toast.makeText(getActivity(), R.string.commit_to_campaign_done, Toast.LENGTH_SHORT).show();
             });
         }
 
-        builder.setPositiveButton("Copy and Dismiss", (dialog, which) -> {
-            ClipboardManager clipboardManager = (ClipboardManager) getActivity()
-                    .getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboardManager.setPrimaryClip(ClipData.newPlainText("Loot", lootMessage));
-        });
-
+        builder.setPositiveButton("Copy and Dismiss", (dialog, which) -> copyToClipboard(lootMessage));
         builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
 
         return builder.create();
+    }
+
+    private void copyToClipboard(String text) {
+        ClipboardManager clipboardManager = (ClipboardManager) getActivity()
+                .getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboardManager.setPrimaryClip(ClipData.newPlainText("Loot", text));
     }
 
     private static boolean hasAnyCounts(int[] counts) {
