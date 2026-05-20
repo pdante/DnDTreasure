@@ -83,10 +83,10 @@
     <string name="tracker_rarity_legendary">Legendary</string>
     <string name="tracker_rarity_very_rare_short">V. Rare</string>
     <string name="tracker_rarity_legendary_short">Legend.</string>
-    <string name="tracker_tier_1">Tier 1 (1–4)</string>
-    <string name="tracker_tier_2">Tier 2 (5–10)</string>
-    <string name="tracker_tier_3">Tier 3 (11–16)</string>
-    <string name="tracker_tier_4">Tier 4 (17–20)</string>
+    <string name="tracker_tier_1">Tier 1\n(1–4)</string>
+    <string name="tracker_tier_2">Tier 2\n(5–10)</string>
+    <string name="tracker_tier_3">Tier 3\n(11–16)</string>
+    <string name="tracker_tier_4">Tier 4\n(17–20)</string>
     <string name="copy_and_commit_to_campaign">Copy and Commit to Campaign</string>
     <string name="tracker_view_history">View Awarded Items</string>
     <string name="awarded_items_title">Awarded Items</string>

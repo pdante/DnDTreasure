@@ -133,10 +133,10 @@ public class TrackerFragment extends Fragment {
     private TextView headerCell(String text) {
         TextView tv = new TextView(getActivity());
         tv.setText(text);
-        tv.setTextSize(13);
+        tv.setTextSize(12);
         tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.BOLD);
         tv.setTextColor(Color.BLACK);
-        tv.setPadding(dp(4), dp(6), dp(4), dp(6));
+        tv.setPadding(dp(2), dp(6), dp(2), dp(6));
         tv.setGravity(Gravity.CENTER);
         return tv;
     }
@@ -145,9 +145,9 @@ public class TrackerFragment extends Fragment {
         int count = campaign.getCount(tier, rarity);
         int target = Campaign.targetForTierAndRarity(tier, rarity);
         TextView tv = new TextView(getActivity());
-        tv.setPadding(dp(4), dp(10), dp(4), dp(10));
+        tv.setPadding(dp(2), dp(10), dp(2), dp(10));
         tv.setGravity(Gravity.CENTER);
-        tv.setTextSize(16);
+        tv.setTextSize(14);
         if (target == 0 && count == 0) {
             tv.setText("—");
             tv.setTextColor(Color.GRAY);
