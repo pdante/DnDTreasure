@@ -50,8 +50,8 @@ public class GenerateLootMessage extends DialogFragment {
             });
         }
 
-        builder.setPositiveButton("Copy and Dismiss", (dialog, which) -> copyToClipboard(lootMessage));
-        builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton("Copy and Dismiss", (dialog, which) -> copyToClipboard(lootMessage));
+        builder.setPositiveButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
 
         return builder.create();
     }
