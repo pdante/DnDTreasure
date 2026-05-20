@@ -225,7 +225,7 @@ public class LootGenerator extends AppCompatActivity
 
     private void updateToolbarTitle() {
         RulesEdition edition = SettingsManager.getRulesEdition(this);
-        int titleRes = edition == RulesEdition.RULES_2014 ? R.string.app_name_2014 : R.string.app_name_2024;
+        int titleRes = edition == RulesEdition.RULES_2014 ? R.string.app_name_2014 : R.string.app_name;
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(titleRes);
         } else {
