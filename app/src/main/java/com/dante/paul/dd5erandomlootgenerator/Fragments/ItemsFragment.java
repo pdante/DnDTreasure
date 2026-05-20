@@ -136,8 +136,7 @@ public class ItemsFragment extends Fragment {
         args.putString("loot_summary", lootSummary);
         args.putString("loot", list.getItems());
         if (edition == RulesEdition.RULES_2024) {
-            args.putIntArray("rarity_counts", generator.getGeneratedRarityCounts());
-            args.putInt("party_tier", generator.getPartyTier().ordinal());
+            TreasureFragment.packItems(args, generator.getGeneratedItems(), generator.getPartyTier());
         }
         how.setArguments(args);
         how.show(getActivity().getFragmentManager(), "tag");

@@ -21,10 +21,13 @@ import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.RulesEdition;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TierOfPlay;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TypeOfEncounter;
 import com.dante.paul.dd5erandomlootgenerator.LootList;
+import com.dante.paul.dd5erandomlootgenerator.MagicItem2024.MagicItem2024Generator;
 import com.dante.paul.dd5erandomlootgenerator.R;
 import com.dante.paul.dd5erandomlootgenerator.Settings.SettingsManager;
 import com.dante.paul.dd5erandomlootgenerator.TreasureCreationClasses.Treasure;
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.GenerateLootMessage;
+
+import java.util.List;
 
 public class TreasureFragment extends Fragment {
     Spinner challengeSpinner, partyLevelSpinner, themeSpinner, iterationSpinner;
@@ -151,11 +154,27 @@ public class TreasureFragment extends Fragment {
         args.putString("loot_summary", lootSummary);
         args.putString("loot", list.getTreasure());
         if (edition == RulesEdition.RULES_2024) {
-            args.putIntArray("rarity_counts", treasure.getGeneratedRarityCounts());
-            args.putInt("party_tier", treasure.getPartyTier().ordinal());
+            packItems(args, treasure.getGeneratedItems(), treasure.getPartyTier());
         }
         how.setArguments(args);
         how.show(getActivity().getFragmentManager(), "tag");
+    }
+
+    static void packItems(Bundle args, List<MagicItem2024Generator.Result> items, TierOfPlay tier) {
+        int n = items.size();
+        String[] names = new String[n];
+        int[] rarities = new int[n];
+        int[] themes = new int[n];
+        for (int i = 0; i < n; i++) {
+            MagicItem2024Generator.Result r = items.get(i);
+            names[i] = r.itemName;
+            rarities[i] = r.rarity.ordinal();
+            themes[i] = r.theme == null ? -1 : r.theme.ordinal();
+        }
+        args.putStringArray("item_names", names);
+        args.putIntArray("item_rarities", rarities);
+        args.putIntArray("item_themes", themes);
+        args.putInt("party_tier", tier.ordinal());
     }
 
     private ChallengeRating getChallengeRating(String challengeRatingString) {

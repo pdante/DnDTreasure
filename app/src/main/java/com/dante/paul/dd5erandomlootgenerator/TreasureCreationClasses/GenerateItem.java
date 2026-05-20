@@ -10,6 +10,9 @@ import com.dante.paul.dd5erandomlootgenerator.MagicItem2024.MagicItem2024Generat
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.MagicItemArtAndGemTables.JustMagicItems;
 import com.dante.paul.dd5erandomlootgenerator.TypesOfLoot.TableObjects.MagicItemTableObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GenerateItem implements TreasureTable {
     protected ChallengeRating challengeRating;
     protected int d100;
@@ -21,6 +24,7 @@ public class GenerateItem implements TreasureTable {
     private MagicItemTheme theme;
     private boolean use2024Rules;
     private final int[] generatedRarityCounts = new int[MagicItemRarity.values().length];
+    private final List<MagicItem2024Generator.Result> generatedItems = new ArrayList<>();
 
     public GenerateItem(ChallengeRating challengeRating, int numberOfItems) {
         this.numberOfItems = numberOfItems;
@@ -60,6 +64,7 @@ public class GenerateItem implements TreasureTable {
         for (int counter = 0; counter < numberOfItems; counter++) {
             MagicItem2024Generator.Result result = generator.generate(partyTier, theme);
             generatedRarityCounts[result.rarity.ordinal()]++;
+            generatedItems.add(result);
             MagicItemTableObject obj = new MagicItemTableObject();
             GenerateItemStrings strings = new GenerateItemStrings();
             strings.setName(result.itemName);
@@ -72,6 +77,10 @@ public class GenerateItem implements TreasureTable {
 
     public int[] getGeneratedRarityCounts() {
         return generatedRarityCounts.clone();
+    }
+
+    public List<MagicItem2024Generator.Result> getGeneratedItems() {
+        return generatedItems;
     }
 
     public TierOfPlay getPartyTier() {
