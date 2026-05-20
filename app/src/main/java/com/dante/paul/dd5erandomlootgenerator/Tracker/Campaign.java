@@ -3,8 +3,13 @@ package com.dante.paul.dd5erandomlootgenerator.Tracker;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TierOfPlay;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Campaign {
 
@@ -16,6 +21,7 @@ public class Campaign {
     private final long createdAt;
     private long lastUpdated;
     private final int[][] counts;
+    private final List<AwardedItem> awardedItems;
 
     public Campaign(String id, String name) {
         this.id = id;
@@ -23,14 +29,21 @@ public class Campaign {
         this.createdAt = System.currentTimeMillis();
         this.lastUpdated = this.createdAt;
         this.counts = new int[TIERS][RARITIES];
+        this.awardedItems = new ArrayList<>();
     }
 
-    private Campaign(String id, String name, long createdAt, long lastUpdated, int[][] counts) {
+    private Campaign(String id,
+                     String name,
+                     long createdAt,
+                     long lastUpdated,
+                     int[][] counts,
+                     List<AwardedItem> awardedItems) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
         this.lastUpdated = lastUpdated;
         this.counts = counts;
+        this.awardedItems = awardedItems;
     }
 
     public String getId() { return id; }
@@ -63,6 +76,19 @@ public class Campaign {
                 counts[t][r] = 0;
             }
         }
+        awardedItems.clear();
+        touch();
+    }
+
+    public List<AwardedItem> getAwardedItems() {
+        return Collections.unmodifiableList(awardedItems);
+    }
+
+    public void addAwardedItems(List<AwardedItem> items) {
+        for (AwardedItem item : items) {
+            awardedItems.add(item);
+            counts[item.tier.ordinal()][item.rarity.ordinal()]++;
+        }
         touch();
     }
 
@@ -94,6 +120,11 @@ public class Campaign {
             }
         }
         obj.put("counts", flat.toString());
+        JSONArray itemsArr = new JSONArray();
+        for (AwardedItem item : awardedItems) {
+            itemsArr.put(item.toJson());
+        }
+        obj.put("awardedItems", itemsArr);
         return obj;
     }
 
@@ -118,7 +149,14 @@ public class Campaign {
                 }
             }
         }
-        return new Campaign(id, name, createdAt, lastUpdated, counts);
+        List<AwardedItem> awardedItems = new ArrayList<>();
+        JSONArray itemsArr = obj.optJSONArray("awardedItems");
+        if (itemsArr != null) {
+            for (int i = 0; i < itemsArr.length(); i++) {
+                awardedItems.add(AwardedItem.fromJson(itemsArr.getJSONObject(i)));
+            }
+        }
+        return new Campaign(id, name, createdAt, lastUpdated, counts, awardedItems);
     }
 
     public static int targetForTierAndRarity(TierOfPlay tier, MagicItemRarity rarity) {
