@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.graphics.Color;
 import android.view.WindowManager;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -167,29 +167,24 @@ public class TrackerFragment extends Fragment {
     }
 
     private void promptEditCell(Campaign campaign, TierOfPlay tier, MagicItemRarity rarity) {
-        EditText input = new EditText(getActivity());
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setText(String.valueOf(campaign.getCount(tier, rarity)));
-        input.setSelectAllOnFocus(true);
+        NumberPicker picker = new NumberPicker(getActivity());
+        picker.setMinValue(0);
+        picker.setMaxValue(999);
+        picker.setWrapSelectorWheel(false);
+        picker.setValue(campaign.getCount(tier, rarity));
         String title = getString(R.string.tracker_edit_dialog_title_format,
                 tierLabel(tier), rarityLabel(rarity));
-        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity())
                 .setTitle(title)
-                .setView(wrapWithPadding(input))
+                .setView(wrapWithPadding(picker))
                 .setPositiveButton(android.R.string.ok, (d, which) -> {
-                    int value;
-                    try {
-                        value = Integer.parseInt(input.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return;
-                    }
-                    campaign.setCount(tier, rarity, value);
+                    picker.clearFocus();
+                    campaign.setCount(tier, rarity, picker.getValue());
                     store.saveCampaign(campaign);
                     rebuildGrid();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .create();
-        showKeyboardWith(dialog, input);
+                .show();
     }
 
     private void promptNewCampaign() {
