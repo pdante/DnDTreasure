@@ -42,6 +42,7 @@ public class TrackerFragment extends Fragment {
     private List<Campaign> campaigns;
     private boolean ignoreNextSelection;
     private View view;
+    private android.content.SharedPreferences.OnSharedPreferenceChangeListener campaignPrefsListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -84,6 +85,32 @@ public class TrackerFragment extends Fragment {
         super.onResume();
         refreshCampaignSpinner();
         rebuildGrid();
+        // Watch the campaign prefs file so commits made from the loot dialog
+        // refresh the grid even if the Tracker tab was already loaded (which
+        // it usually is — it's adjacent to Treasure in the ViewPager, so its
+        // onResume only fires once on initial creation).
+        android.content.SharedPreferences prefs = getActivity()
+                .getApplicationContext()
+                .getSharedPreferences("LootGenCampaigns", android.content.Context.MODE_PRIVATE);
+        campaignPrefsListener = (sharedPreferences, key) -> {
+            if (isAdded() && view != null) {
+                refreshCampaignSpinner();
+                rebuildGrid();
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(campaignPrefsListener);
+    }
+
+    @Override
+    public void onPause() {
+        if (campaignPrefsListener != null) {
+            getActivity()
+                    .getApplicationContext()
+                    .getSharedPreferences("LootGenCampaigns", android.content.Context.MODE_PRIVATE)
+                    .unregisterOnSharedPreferenceChangeListener(campaignPrefsListener);
+            campaignPrefsListener = null;
+        }
+        super.onPause();
     }
 
     private void refreshCampaignSpinner() {
