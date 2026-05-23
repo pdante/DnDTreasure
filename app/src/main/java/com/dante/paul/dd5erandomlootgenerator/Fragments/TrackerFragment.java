@@ -113,6 +113,20 @@ public class TrackerFragment extends Fragment {
         super.onPause();
     }
 
+    @Override
+    @SuppressWarnings("deprecation")
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        // ViewPager v1 keeps adjacent fragments resumed, so onResume doesn't
+        // fire when the user swipes back to the Tracker after committing
+        // from another tab. Refresh when the tab becomes visible so the
+        // grid reflects the latest counts.
+        if (isVisibleToUser && isAdded() && view != null) {
+            refreshCampaignSpinner();
+            rebuildGrid();
+        }
+    }
+
     private void refreshCampaignSpinner() {
         campaigns = store.listCampaigns();
         List<String> labels = new ArrayList<>();
