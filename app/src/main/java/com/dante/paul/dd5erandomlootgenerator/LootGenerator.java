@@ -21,7 +21,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.RulesEdition;
 import com.dante.paul.dd5erandomlootgenerator.Settings.SettingsManager;
+import com.dante.paul.dd5erandomlootgenerator.Tracker.Campaign;
+import com.dante.paul.dd5erandomlootgenerator.Tracker.CampaignStore;
 import com.dante.paul.dd5erandomlootgenerator.billing.BillingManager;
+
+import java.util.List;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -43,6 +47,8 @@ public class LootGenerator extends AppCompatActivity
     private ConsentInformation consentInformation;
     private final AtomicBoolean adsSdkInitialized = new AtomicBoolean(false);
     private SharedPreferences.OnSharedPreferenceChangeListener titlePrefsListener;
+    private SharedPreferences.OnSharedPreferenceChangeListener campaignPrefsListener;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +68,16 @@ public class LootGenerator extends AppCompatActivity
             return WindowInsetsCompat.CONSUMED;
         });
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         updateToolbarTitle();
+        updateToolbarSubtitle();
+        toolbar.setOnClickListener(v -> {
+            if (SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024) {
+                showCampaignPickerDialog();
+            }
+        });
 
         SharedPreferences prefs = getApplicationContext()
                 .getSharedPreferences("LootGenPref", Context.MODE_PRIVATE);
@@ -86,6 +98,11 @@ public class LootGenerator extends AppCompatActivity
             }
         };
         prefs.registerOnSharedPreferenceChangeListener(titlePrefsListener);
+
+        SharedPreferences campaignPrefs = getApplicationContext()
+                .getSharedPreferences("LootGenCampaigns", Context.MODE_PRIVATE);
+        campaignPrefsListener = (sharedPreferences, key) -> updateToolbarSubtitle();
+        campaignPrefs.registerOnSharedPreferenceChangeListener(campaignPrefsListener);
 
         billingManager = new BillingManager(this, this);
         adsEnabled = !billingManager.isAdsRemovedCached();
@@ -219,6 +236,12 @@ public class LootGenerator extends AppCompatActivity
                     .unregisterOnSharedPreferenceChangeListener(titlePrefsListener);
             titlePrefsListener = null;
         }
+        if (campaignPrefsListener != null) {
+            getApplicationContext()
+                    .getSharedPreferences("LootGenCampaigns", Context.MODE_PRIVATE)
+                    .unregisterOnSharedPreferenceChangeListener(campaignPrefsListener);
+            campaignPrefsListener = null;
+        }
         super.onDestroy();
     }
 
@@ -245,6 +268,37 @@ public class LootGenerator extends AppCompatActivity
         } else {
             setTitle(titleRes);
         }
+    }
+
+    private void updateToolbarSubtitle() {
+        if (getSupportActionBar() == null) return;
+        if (SettingsManager.getRulesEdition(this) != RulesEdition.RULES_2024) {
+            getSupportActionBar().setSubtitle(null);
+            return;
+        }
+        Campaign active = new CampaignStore(this).getActive();
+        getSupportActionBar().setSubtitle(getString(R.string.toolbar_campaign_subtitle, active.getName()));
+    }
+
+    private void showCampaignPickerDialog() {
+        CampaignStore store = new CampaignStore(this);
+        List<Campaign> campaigns = store.listCampaigns();
+        if (campaigns.isEmpty()) return;
+        String[] names = new String[campaigns.size()];
+        int checkedIndex = 0;
+        String activeId = store.getActive().getId();
+        for (int i = 0; i < campaigns.size(); i++) {
+            names[i] = campaigns.get(i).getName();
+            if (campaigns.get(i).getId().equals(activeId)) checkedIndex = i;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.toolbar_pick_campaign_title)
+                .setSingleChoiceItems(names, checkedIndex, (dialog, which) -> {
+                    store.setActive(campaigns.get(which).getId());
+                    dialog.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void showRulesEditionDialog() {

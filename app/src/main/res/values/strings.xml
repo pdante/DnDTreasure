@@ -59,6 +59,8 @@
     <string name="rules_edition_2014">2014 (Classic)</string>
     <string name="rules_edition_2024">2024 (New)</string>
     <string name="app_name_2014">Loot Generator for D&amp;D 5e (2014)</string>
+    <string name="toolbar_campaign_subtitle">Campaign: %1$s</string>
+    <string name="toolbar_pick_campaign_title">Active Campaign</string>
     <string name="campaign_tracker">Campaign Tracker</string>
     <string name="tracker_active_campaign">Active campaign:</string>
     <string name="tracker_new">New</string>
