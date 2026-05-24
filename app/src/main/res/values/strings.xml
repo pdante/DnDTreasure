@@ -62,7 +62,6 @@
     <string name="toolbar_campaign_subtitle">Campaign: %1$s</string>
     <string name="toolbar_pick_campaign_title">Active Campaign</string>
     <string name="campaign_tracker">Campaign Tracker</string>
-    <string name="tracker_active_campaign">Active campaign:</string>
     <string name="tracker_new">New</string>
     <string name="tracker_rename">Rename</string>
     <string name="tracker_reset">Reset</string>

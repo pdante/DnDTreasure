@@ -8,11 +8,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.NumberPicker;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -27,8 +24,6 @@ import com.dante.paul.dd5erandomlootgenerator.Tracker.AwardedItemsActivity;
 import com.dante.paul.dd5erandomlootgenerator.Tracker.Campaign;
 import com.dante.paul.dd5erandomlootgenerator.Tracker.CampaignStore;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class TrackerFragment extends Fragment {
 
@@ -36,11 +31,8 @@ public class TrackerFragment extends Fragment {
     private static final MagicItemRarity[] RARITIES = MagicItemRarity.values();
 
     private CampaignStore store;
-    private Spinner campaignSpinner;
     private TableLayout grid;
     private TextView totalView;
-    private List<Campaign> campaigns;
-    private boolean ignoreNextSelection;
     private View view;
     private android.content.SharedPreferences.OnSharedPreferenceChangeListener campaignPrefsListener;
 
@@ -48,7 +40,6 @@ public class TrackerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.tracker, container, false);
         store = new CampaignStore(getActivity());
-        campaignSpinner = view.findViewById(R.id.tracker_campaign_spinner);
         grid = view.findViewById(R.id.tracker_grid);
         totalView = view.findViewById(R.id.tracker_total);
 
@@ -60,30 +51,12 @@ public class TrackerFragment extends Fragment {
             Campaign active = store.getActive();
             startActivity(AwardedItemsActivity.intent(getActivity(), active.getId()));
         });
-
-        campaignSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-                if (ignoreNextSelection) {
-                    ignoreNextSelection = false;
-                    return;
-                }
-                if (position >= 0 && position < campaigns.size()) {
-                    store.setActive(campaigns.get(position).getId());
-                    rebuildGrid();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        refreshCampaignSpinner();
         rebuildGrid();
         // Watch the campaign prefs file so commits made from the loot dialog
         // refresh the grid even if the Tracker tab was already loaded (which
@@ -94,7 +67,6 @@ public class TrackerFragment extends Fragment {
                 .getSharedPreferences("LootGenCampaigns", android.content.Context.MODE_PRIVATE);
         campaignPrefsListener = (sharedPreferences, key) -> {
             if (isAdded() && view != null) {
-                refreshCampaignSpinner();
                 rebuildGrid();
             }
         };
@@ -122,26 +94,7 @@ public class TrackerFragment extends Fragment {
         // from another tab. Refresh when the tab becomes visible so the
         // grid reflects the latest counts.
         if (isVisibleToUser && isAdded() && view != null) {
-            refreshCampaignSpinner();
             rebuildGrid();
-        }
-    }
-
-    private void refreshCampaignSpinner() {
-        campaigns = store.listCampaigns();
-        List<String> labels = new ArrayList<>();
-        for (Campaign c : campaigns) labels.add(c.getName());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                getActivity(), android.R.layout.simple_spinner_item, labels);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ignoreNextSelection = true;
-        campaignSpinner.setAdapter(adapter);
-        Campaign active = store.getActive();
-        for (int i = 0; i < campaigns.size(); i++) {
-            if (campaigns.get(i).getId().equals(active.getId())) {
-                campaignSpinner.setSelection(i);
-                break;
-            }
         }
     }
 
@@ -239,7 +192,6 @@ public class TrackerFragment extends Fragment {
                     if (name.isEmpty()) return;
                     Campaign created = store.createCampaign(name);
                     store.setActive(created.getId());
-                    refreshCampaignSpinner();
                     rebuildGrid();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -259,7 +211,6 @@ public class TrackerFragment extends Fragment {
                     String name = input.getText().toString().trim();
                     if (name.isEmpty()) return;
                     store.renameCampaign(active.getId(), name);
-                    refreshCampaignSpinner();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
@@ -298,7 +249,6 @@ public class TrackerFragment extends Fragment {
                 .setMessage(getString(R.string.tracker_delete_confirm_message, active.getName()))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     store.deleteCampaign(active.getId());
-                    refreshCampaignSpinner();
                     rebuildGrid();
                     Toast.makeText(getActivity(), "Deleted", Toast.LENGTH_SHORT).show();
                 })
