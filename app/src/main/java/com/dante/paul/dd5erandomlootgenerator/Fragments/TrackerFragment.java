@@ -66,8 +66,14 @@ public class TrackerFragment extends Fragment {
                 .getApplicationContext()
                 .getSharedPreferences("LootGenCampaigns", android.content.Context.MODE_PRIVATE);
         campaignPrefsListener = (sharedPreferences, key) -> {
-            if (isAdded() && view != null) {
-                rebuildGrid();
+            // Post to break re-entrancy: rebuildGrid -> store.getActive() can
+            // write prefs (e.g. ensureAtLeastOneCampaign creating a Default
+            // after delete-all), which would re-enter this listener
+            // synchronously and recurse forever.
+            if (view != null) {
+                view.post(() -> {
+                    if (isAdded() && view != null) rebuildGrid();
+                });
             }
         };
         prefs.registerOnSharedPreferenceChangeListener(campaignPrefsListener);

@@ -48,18 +48,32 @@ public class CampaignStore {
             Campaign c = loadCampaign(activeId);
             if (c != null) return c;
         }
+        // The active pointer is missing or points at a deleted blob.
+        // Walk the id list looking for any loadable campaign.
         List<String> ids = listIds();
-        if (!ids.isEmpty()) {
-            Campaign c = loadCampaign(ids.get(0));
+        for (String id : ids) {
+            Campaign c = loadCampaign(id);
             if (c != null) {
                 prefs.edit().putString(KEY_ACTIVE, c.getId()).apply();
                 return c;
             }
         }
-        // Should not happen because ensureAtLeastOneCampaign ran in the ctor,
-        // but if storage was wiped concurrently, create one.
-        Campaign created = createCampaign(DEFAULT_NAME);
-        prefs.edit().putString(KEY_ACTIVE, created.getId()).apply();
+        // Nothing loadable. Synthesize a Default and commit campaign blob,
+        // id list, and active pointer in a single atomic edit so any
+        // listener that re-enters us mid-write sees a fully-consistent
+        // state (prevents StackOverflow recursion through getActive).
+        Campaign created = new Campaign(UUID.randomUUID().toString(), DEFAULT_NAME);
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            editor.putString(KEY_CAMPAIGN_PREFIX + created.getId(), created.toJson().toString());
+        } catch (JSONException e) {
+            Log.w(TAG, "Failed to serialize synthesized default campaign", e);
+        }
+        JSONArray arr = new JSONArray();
+        arr.put(created.getId());
+        editor.putString(KEY_IDS, arr.toString());
+        editor.putString(KEY_ACTIVE, created.getId());
+        editor.apply();
         return created;
     }
 
@@ -70,14 +84,22 @@ public class CampaignStore {
     public Campaign createCampaign(@NonNull String name) {
         String id = UUID.randomUUID().toString();
         Campaign c = new Campaign(id, name.trim().isEmpty() ? DEFAULT_NAME : name.trim());
-        saveCampaign(c);
+        SharedPreferences prefs = prefs();
         List<String> ids = listIds();
         ids.add(id);
-        writeIds(ids);
-        SharedPreferences prefs = prefs();
-        if (!prefs.contains(KEY_ACTIVE)) {
-            prefs.edit().putString(KEY_ACTIVE, id).apply();
+        JSONArray arr = new JSONArray();
+        for (String existing : ids) arr.put(existing);
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            editor.putString(KEY_CAMPAIGN_PREFIX + id, c.toJson().toString());
+        } catch (JSONException e) {
+            Log.w(TAG, "Failed to serialize campaign " + id, e);
         }
+        editor.putString(KEY_IDS, arr.toString());
+        if (!prefs.contains(KEY_ACTIVE)) {
+            editor.putString(KEY_ACTIVE, id);
+        }
+        editor.apply();
         return c;
     }
 
@@ -99,13 +121,17 @@ public class CampaignStore {
 
     public void deleteCampaign(@NonNull String id) {
         SharedPreferences prefs = prefs();
-        prefs.edit().remove(KEY_CAMPAIGN_PREFIX + id).apply();
         List<String> ids = listIds();
         ids.remove(id);
-        writeIds(ids);
+        SharedPreferences.Editor editor = prefs.edit()
+                .remove(KEY_CAMPAIGN_PREFIX + id);
+        JSONArray arr = new JSONArray();
+        for (String remaining : ids) arr.put(remaining);
+        editor.putString(KEY_IDS, arr.toString());
         if (id.equals(prefs.getString(KEY_ACTIVE, null))) {
-            prefs.edit().putString(KEY_ACTIVE, ids.isEmpty() ? null : ids.get(0)).apply();
+            editor.putString(KEY_ACTIVE, ids.isEmpty() ? null : ids.get(0));
         }
+        editor.apply();
         ensureAtLeastOneCampaign();
     }
 
