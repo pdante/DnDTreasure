@@ -16,11 +16,11 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.dante.paul.lootgeneratorfordnd5epremium"
+        applicationId "com.verdantsoftware.lootforge"
         minSdk 24
         targetSdk 36
-        versionCode 3
-        versionName "1.3"
+        versionCode 1
+        versionName "1.0"
     }
 
     signingConfigs {

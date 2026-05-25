@@ -1,6 +1,5 @@
 package com.dante.paul.dd5erandomlootgenerator;
 
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -322,17 +321,129 @@ public class LootGenerator extends AppCompatActivity
                 .show();
     }
 
-    public boolean about(MenuItem item){
-        String aboutSummary = "D&D 5e Loot Generator v1.9";
-        String about = "Developed by Paul Dante to help save DMs some time. \r\n \r\nPlease rate and provide feedback of how I can improve this app.\r\n \r\nIf you like the app and would like to make a donation: PayPal.Me/PDante \n" +
-                " \nBackground image of scroll provided by www.myfreetextures.com";
-        DialogFragment how = new GenerateAboutMessage();
-        Bundle args = new Bundle();
-        args.putString("about_summary", aboutSummary);
-        args.putString("about", about);
-        how.setArguments(args);
-        how.show(getFragmentManager(), "tag");
+    private void openPlayListing() {
+        String pkg = getPackageName();
+        android.net.Uri market = android.net.Uri.parse("market://details?id=" + pkg);
+        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, market);
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            android.net.Uri web = android.net.Uri.parse("https://play.google.com/store/apps/details?id=" + pkg);
+            startActivityOrToast(new android.content.Intent(android.content.Intent.ACTION_VIEW, web),
+                    R.string.no_browser_app);
+        }
+    }
+
+    private void sendFeedbackEmail() {
+        String email = getString(R.string.feedback_email);
+        String versionName;
+        try {
+            versionName = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            versionName = "";
+        }
+        String subject = getString(R.string.feedback_subject, versionName);
+        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_SENDTO);
+        intent.setData(android.net.Uri.parse("mailto:" + android.net.Uri.encode(email)
+                + "?subject=" + android.net.Uri.encode(subject)));
+        startActivityOrToast(intent, R.string.no_email_app);
+    }
+
+    private void shareApp() {
+        String url = "https://play.google.com/store/apps/details?id=" + getPackageName();
+        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.share_app_text, url));
+        startActivity(android.content.Intent.createChooser(intent, getString(R.string.share_app_chooser_title)));
+    }
+
+    private void openPrivacyPolicy() {
+        android.net.Uri uri = android.net.Uri.parse(getString(R.string.privacy_policy_url));
+        startActivityOrToast(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri),
+                R.string.no_browser_app);
+    }
+
+    private void startActivityOrToast(android.content.Intent intent, int errorStringRes) {
+        try {
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            Toast.makeText(this, errorStringRes, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void promptDeleteAllCampaigns() {
+        CampaignStore store = new CampaignStore(this);
+        List<Campaign> all = store.listCampaigns();
+        int count = all.size();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.tracker_delete_all_title)
+                .setMessage(getString(R.string.tracker_delete_all_message, count))
+                .setPositiveButton(R.string.tracker_delete_all_title, (dialog, which) -> {
+                    for (Campaign c : all) {
+                        store.deleteCampaign(c.getId());
+                    }
+                    Toast.makeText(this, "All campaigns deleted", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    public boolean about(MenuItem item) {
+        showAboutDialog();
         return true;
+    }
+
+    private void showAboutDialog() {
+        android.widget.LinearLayout container = new android.widget.LinearLayout(this);
+        container.setOrientation(android.widget.LinearLayout.VERTICAL);
+        float density = getResources().getDisplayMetrics().density;
+        int hPad = (int) (24 * density + 0.5f);
+        int vPad = (int) (16 * density + 0.5f);
+        int gap = (int) (8 * density + 0.5f);
+        container.setPadding(hPad, vPad, hPad, 0);
+
+        android.widget.TextView body = new android.widget.TextView(this);
+        String text = "Developed by Paul Dante to help save DMs some time.\n\n" +
+                "If you like the app and would like to make a donation: https://paypal.me/PDante\n\n" +
+                "Background image of scroll provided by https://www.myfreetextures.com";
+        body.setText(text);
+        body.setTextSize(16);
+        body.setAutoLinkMask(android.text.util.Linkify.WEB_URLS);
+        body.setLinksClickable(true);
+        body.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+        container.addView(body);
+
+        android.widget.LinearLayout.LayoutParams btnLp = new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        btnLp.topMargin = gap;
+
+        container.addView(makeAboutButton(R.string.action_rate_app, btnLp, v -> openPlayListing()));
+        container.addView(makeAboutButton(R.string.action_send_feedback, btnLp, v -> sendFeedbackEmail()));
+        container.addView(makeAboutButton(R.string.action_share_app, btnLp, v -> shareApp()));
+        container.addView(makeAboutButton(R.string.action_privacy_policy, btnLp, v -> openPrivacyPolicy()));
+
+        android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+        scroll.addView(container);
+
+        new AlertDialog.Builder(this)
+                .setTitle("LootForge v1.0")
+                .setView(scroll)
+                .setPositiveButton(android.R.string.ok, (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private android.widget.Button makeAboutButton(int textRes,
+                                                  android.widget.LinearLayout.LayoutParams lp,
+                                                  View.OnClickListener listener) {
+        android.widget.Button btn = new android.widget.Button(this);
+        btn.setText(textRes);
+        btn.setAllCaps(false);
+        btn.setLayoutParams(lp);
+        btn.setOnClickListener(listener);
+        return btn;
     }
 
     @Override
@@ -348,6 +459,10 @@ public class LootGenerator extends AppCompatActivity
         }
         if (id == R.id.action_rules_edition) {
             showRulesEditionDialog();
+            return true;
+        }
+        if (id == R.id.action_delete_all_campaigns) {
+            promptDeleteAllCampaigns();
             return true;
         }
         if (id == R.id.action_settings) {

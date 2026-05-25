@@ -190,6 +190,10 @@ public class TrackerFragment extends Fragment {
     private void promptNewCampaign() {
         EditText input = new EditText(getActivity());
         input.setHint("Campaign name");
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        input.setSingleLine(true);
+        input.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_new_dialog_title)
                 .setView(wrapWithPadding(input))
@@ -210,6 +214,10 @@ public class TrackerFragment extends Fragment {
         EditText input = new EditText(getActivity());
         input.setText(active.getName());
         input.setSelectAllOnFocus(true);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        input.setSingleLine(true);
+        input.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_rename_dialog_title)
                 .setView(wrapWithPadding(input))
@@ -250,10 +258,14 @@ public class TrackerFragment extends Fragment {
 
     private void promptDeleteCampaign() {
         Campaign active = store.getActive();
+        boolean isOnly = store.listCampaigns().size() <= 1;
+        int messageRes = isOnly
+                ? R.string.tracker_delete_only_confirm_message
+                : R.string.tracker_delete_confirm_message;
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_delete_confirm_title)
-                .setMessage(getString(R.string.tracker_delete_confirm_message, active.getName()))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                .setMessage(getString(messageRes, active.getName()))
+                .setPositiveButton(R.string.tracker_delete_confirm_title, (dialog, which) -> {
                     store.deleteCampaign(active.getId());
                     rebuildGrid();
                     Toast.makeText(getActivity(), "Deleted", Toast.LENGTH_SHORT).show();

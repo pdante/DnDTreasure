@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Loot Generator for D&amp;D 5e</string>
+    <string name="app_name">LootForge</string>
     <string name="action_settings">Settings</string>
     <string name="edit_message">Enter a message</string>
     <string name="treasure_send">Generate Treasure</string>
@@ -54,11 +54,11 @@
     <string name="remove_ads_thanks">Ads removed. Thanks for your support!</string>
     <string name="remove_ads_failed">Purchase could not be completed. Please try again.</string>
     <string name="restore_purchases">Restore Purchases</string>
-    <string name="rules_edition">Rules Edition</string>
+    <string name="rules_edition">5e Rules Edition</string>
     <string name="rules_edition_dialog_title">Choose Rules Edition</string>
     <string name="rules_edition_2014">2014 (Classic)</string>
     <string name="rules_edition_2024">2024 (New)</string>
-    <string name="app_name_2014">Loot Generator for D&amp;D 5e (2014)</string>
+    <string name="app_name_2014">LootForge (2014)</string>
     <string name="toolbar_campaign_subtitle">Campaign: %1$s</string>
     <string name="toolbar_pick_campaign_title">Active Campaign</string>
     <string name="campaign_tracker">Campaign Tracker</string>
@@ -72,7 +72,22 @@
     <string name="tracker_new_dialog_title">New campaign</string>
     <string name="tracker_rename_dialog_title">Rename campaign</string>
     <string name="tracker_delete_confirm_title">Delete campaign?</string>
-    <string name="tracker_delete_confirm_message">Delete \"%1$s\" and all of its tracked items? This cannot be undone.</string>
+    <string name="tracker_delete_confirm_message">Delete \"%1$s\"?\n\nThis will permanently remove all of its tracked items and tier counts. This cannot be undone.\n\nAnother campaign will become active afterward.</string>
+    <string name="tracker_delete_only_confirm_message">Delete \"%1$s\"?\n\nThis is your only campaign. Deleting it will permanently remove all of its tracked items and tier counts (this cannot be undone) and start a fresh, empty campaign called \"Default Campaign\".</string>
+    <string name="tracker_delete_all_title">Delete all campaigns?</string>
+    <string name="tracker_delete_all_message">Permanently remove all %1$d campaigns and every tracked item and tier count? This cannot be undone.\n\nA fresh, empty campaign called \"Default Campaign\" will be created afterward.</string>
+    <string name="action_delete_all_campaigns">Delete all campaigns</string>
+    <string name="action_rate_app">Rate this app</string>
+    <string name="action_send_feedback">Send feedback</string>
+    <string name="action_share_app">Share app</string>
+    <string name="action_privacy_policy">Privacy Policy</string>
+    <string name="feedback_email">verdant.software.inc@gmail.com</string>
+    <string name="feedback_subject">LootForge %1$s feedback</string>
+    <string name="share_app_text">Check out LootForge — a loot generator for D&amp;D 5e:\n%1$s</string>
+    <string name="share_app_chooser_title">Share LootForge</string>
+    <string name="privacy_policy_url">https://verdantsoftware.github.io/LootForge/</string>
+    <string name="no_browser_app">No app available to open this link</string>
+    <string name="no_email_app">No email app available</string>
     <string name="tracker_reset_confirm_title">Reset counts?</string>
     <string name="tracker_reset_confirm_message">Reset all counts for \"%1$s\" to zero?</string>
     <string name="tracker_edit_dialog_title_format">%1$s — %2$s</string>
