@@ -15,6 +15,7 @@ public class AwardedItem {
     public final MagicItemTheme theme;
     public final long commitTimestamp;
     public final String commitId;
+    public boolean crossedOut;
 
     public AwardedItem(String name,
                        TierOfPlay tier,
@@ -22,12 +23,23 @@ public class AwardedItem {
                        MagicItemTheme theme,
                        long commitTimestamp,
                        String commitId) {
+        this(name, tier, rarity, theme, commitTimestamp, commitId, false);
+    }
+
+    public AwardedItem(String name,
+                       TierOfPlay tier,
+                       MagicItemRarity rarity,
+                       MagicItemTheme theme,
+                       long commitTimestamp,
+                       String commitId,
+                       boolean crossedOut) {
         this.name = name;
         this.tier = tier;
         this.rarity = rarity;
         this.theme = theme;
         this.commitTimestamp = commitTimestamp;
         this.commitId = commitId;
+        this.crossedOut = crossedOut;
     }
 
     public JSONObject toJson() throws JSONException {
@@ -38,6 +50,7 @@ public class AwardedItem {
         obj.put("theme", theme == null ? -1 : theme.ordinal());
         obj.put("commitTimestamp", commitTimestamp);
         obj.put("commitId", commitId);
+        obj.put("crossedOut", crossedOut);
         return obj;
     }
 
@@ -52,7 +65,8 @@ public class AwardedItem {
                 : enumByOrdinal(MagicItemTheme.values(), themeOrdinal, MagicItemTheme.RANDOM);
         long ts = obj.optLong("commitTimestamp", 0);
         String commitId = obj.optString("commitId", "");
-        return new AwardedItem(name, tier, rarity, theme, ts, commitId);
+        boolean crossedOut = obj.optBoolean("crossedOut", false);
+        return new AwardedItem(name, tier, rarity, theme, ts, commitId, crossedOut);
     }
 
     private static <E extends Enum<E>> E enumByOrdinal(E[] values, int ordinal, E fallback) {

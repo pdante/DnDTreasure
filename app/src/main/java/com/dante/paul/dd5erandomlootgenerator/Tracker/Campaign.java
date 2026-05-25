@@ -74,6 +74,12 @@ public class Campaign {
         touch();
     }
 
+    public void decrement(TierOfPlay tier, MagicItemRarity rarity) {
+        int[] row = counts[tier.ordinal()];
+        if (row[rarity.ordinal()] > 0) row[rarity.ordinal()]--;
+        touch();
+    }
+
     public void resetCounts() {
         for (int t = 0; t < TIERS; t++) {
             for (int r = 0; r < RARITIES; r++) {

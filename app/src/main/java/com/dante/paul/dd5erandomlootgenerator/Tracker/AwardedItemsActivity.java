@@ -1,12 +1,18 @@
 package com.dante.paul.dd5erandomlootgenerator.Tracker;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.TierOfPlay;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +38,9 @@ public class AwardedItemsActivity extends AppCompatActivity {
 
     public static final String EXTRA_CAMPAIGN_ID = "campaign_id";
 
+    private CampaignStore store;
+    private Campaign campaign;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
@@ -48,8 +57,8 @@ public class AwardedItemsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         String campaignId = getIntent().getStringExtra(EXTRA_CAMPAIGN_ID);
-        CampaignStore store = new CampaignStore(this);
-        Campaign campaign = null;
+        store = new CampaignStore(this);
+        campaign = null;
         if (campaignId != null) {
             for (Campaign c : store.listCampaigns()) {
                 if (campaignId.equals(c.getId())) { campaign = c; break; }
@@ -122,7 +131,115 @@ public class AwardedItemsActivity extends AppCompatActivity {
         tv.setTextColor(Color.BLACK);
         tv.setTextSize(18);
         tv.setPadding(dp(8), dp(4), 0, dp(4));
+        applyStrikethrough(tv, item.crossedOut);
+        tv.setOnClickListener(v -> onItemTapped(item, tv));
         return tv;
+    }
+
+    private void applyStrikethrough(TextView tv, boolean on) {
+        int flags = tv.getPaintFlags();
+        if (on) {
+            tv.setPaintFlags(flags | Paint.STRIKE_THRU_TEXT_FLAG);
+            tv.setTextColor(Color.GRAY);
+        } else {
+            tv.setPaintFlags(flags & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            tv.setTextColor(Color.BLACK);
+        }
+    }
+
+    private void onItemTapped(AwardedItem item, TextView tv) {
+        if (item.rarity == null) return;
+        if (!item.crossedOut) {
+            // Crossing out — pick a tier whose count for this rarity we'll decrement.
+            List<TierOfPlay> eligible = new ArrayList<>();
+            for (TierOfPlay t : TierOfPlay.values()) {
+                if (Campaign.targetForTierAndRarity(t, item.rarity) > 0
+                        && campaign.getCount(t, item.rarity) > 0) {
+                    eligible.add(t);
+                }
+            }
+            if (eligible.isEmpty()) {
+                item.crossedOut = true;
+                store.saveCampaign(campaign);
+                applyStrikethrough(tv, true);
+                return;
+            }
+            if (eligible.size() == 1) {
+                TierOfPlay only = eligible.get(0);
+                campaign.decrement(only, item.rarity);
+                item.crossedOut = true;
+                store.saveCampaign(campaign);
+                applyStrikethrough(tv, true);
+                return;
+            }
+            showTierPicker("Remove one " + rarityLabel(item.rarity) + " from which tier?",
+                    eligible, item.rarity, chosen -> {
+                campaign.decrement(chosen, item.rarity);
+                item.crossedOut = true;
+                store.saveCampaign(campaign);
+                applyStrikethrough(tv, true);
+            });
+        } else {
+            // Uncrossing — pick a tier to credit.
+            List<TierOfPlay> eligible = new ArrayList<>();
+            for (TierOfPlay t : TierOfPlay.values()) {
+                if (Campaign.targetForTierAndRarity(t, item.rarity) > 0) {
+                    eligible.add(t);
+                }
+            }
+            showTierPicker("Add one " + rarityLabel(item.rarity) + " to which tier?",
+                    eligible, item.rarity, chosen -> {
+                campaign.increment(chosen, item.rarity);
+                item.crossedOut = false;
+                store.saveCampaign(campaign);
+                applyStrikethrough(tv, false);
+            });
+        }
+    }
+
+    private interface TierChosen { void run(TierOfPlay tier); }
+
+    private void showTierPicker(String title,
+                                List<TierOfPlay> tiers,
+                                com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity rarity,
+                                TierChosen onChosen) {
+        List<String> labels = new ArrayList<>();
+        for (TierOfPlay t : tiers) {
+            int current = campaign.getCount(t, rarity);
+            int target = Campaign.targetForTierAndRarity(t, rarity);
+            labels.add(tierLabel(t) + " — " + current + " / " + target);
+        }
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        int hPad = dp(24);
+        container.setPadding(hPad, dp(16), hPad, 0);
+
+        Spinner spinner = new Spinner(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        container.addView(spinner);
+
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setView(container)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    int idx = spinner.getSelectedItemPosition();
+                    if (idx >= 0 && idx < tiers.size()) onChosen.run(tiers.get(idx));
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private static String tierLabel(TierOfPlay tier) {
+        switch (tier) {
+            case TIER_1: return "Tier 1 (1–4)";
+            case TIER_2: return "Tier 2 (5–10)";
+            case TIER_3: return "Tier 3 (11–16)";
+            case TIER_4: return "Tier 4 (17–20)";
+            default: return tier.name();
+        }
     }
 
     private TextView emptyView() {
