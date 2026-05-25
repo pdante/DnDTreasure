@@ -32,6 +32,7 @@ public class GenerateLootMessage extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final android.app.Activity activity = getActivity();
         Bundle args = getArguments();
         final String lootMessage = args.getString("loot", "");
         final String lootTitle = args.getString("loot_summary", "");
@@ -55,29 +56,45 @@ public class GenerateLootMessage extends DialogFragment {
             final CampaignStore store = new CampaignStore(getActivity());
             final Campaign active = store.getActive();
             final TierOfPlay tier = TierOfPlay.values()[partyTierOrdinal];
-            builder.setPositiveButton(R.string.copy_and_commit_to_campaign, (dialog, which) -> {
-                String text = buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
-                copyToClipboard(text);
-                List<AwardedItem> built = buildCheckedAwardedItems(
-                        itemNames, itemRarities, itemThemes, checks, tier);
-                if (!built.isEmpty()) {
-                    active.addAwardedItems(built);
-                    store.saveCampaign(active);
-                }
-                Toast.makeText(getActivity(), R.string.commit_to_campaign_done, Toast.LENGTH_SHORT).show();
-            });
+            builder.setPositiveButton(R.string.copy_and_commit_to_campaign, (dialog, which) -> { /* overridden in OnShowListener */ });
             builder.setNegativeButton("Copy and Dismiss", (dialog, which) -> {
                 String text = buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
-                copyToClipboard(text);
+                copyToClipboard(activity, text);
             });
+            builder.setNeutralButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
+
+            final AlertDialog dialog = builder.create();
+            final boolean[] alreadyWarned = {false};
+            dialog.setOnShowListener(d -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    List<AwardedItem> built = buildCheckedAwardedItems(
+                            itemNames, itemRarities, itemThemes, checks, tier);
+                    List<MagicItemRarity> overMax = computeOverMaxRarities(active, tier, built);
+                    boolean needWarn = !overMax.isEmpty()
+                            && !active.isSuppressOverMaxWarning()
+                            && !alreadyWarned[0];
+                    if (needWarn) {
+                        alreadyWarned[0] = true;
+                        showOverMaxWarning(activity, active, store, tier, overMax);
+                        return;
+                    }
+                    String text = buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
+                    copyToClipboard(activity, text);
+                    if (!built.isEmpty()) {
+                        active.addAwardedItems(built);
+                        store.saveCampaign(active);
+                    }
+                    Toast.makeText(activity, R.string.commit_to_campaign_done, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                });
+            });
+            return dialog;
         } else {
             builder.setMessage(lootMessage);
-            builder.setNegativeButton("Copy and Dismiss", (dialog, which) -> copyToClipboard(lootMessage));
+            builder.setNegativeButton("Copy and Dismiss", (dialog, which) -> copyToClipboard(activity, lootMessage));
+            builder.setNeutralButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
+            return builder.create();
         }
-
-        builder.setNeutralButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
-
-        return builder.create();
     }
 
     private ScrollView buildItemsView(String prefix,
@@ -205,8 +222,83 @@ public class GenerateLootMessage extends DialogFragment {
         }
     }
 
-    private void copyToClipboard(String text) {
-        ClipboardManager clipboardManager = (ClipboardManager) getActivity()
+    private static List<MagicItemRarity> computeOverMaxRarities(Campaign campaign,
+                                                                TierOfPlay tier,
+                                                                List<AwardedItem> toAdd) {
+        int[] adding = new int[MagicItemRarity.values().length];
+        for (AwardedItem item : toAdd) {
+            adding[item.rarity.ordinal()]++;
+        }
+        List<MagicItemRarity> over = new ArrayList<>();
+        for (MagicItemRarity rarity : MagicItemRarity.values()) {
+            int add = adding[rarity.ordinal()];
+            if (add == 0) continue;
+            int target = Campaign.targetForTierAndRarity(tier, rarity);
+            int current = campaign.getCount(tier, rarity);
+            if (current + add > target) {
+                over.add(rarity);
+            }
+        }
+        return over;
+    }
+
+    private void showOverMaxWarning(android.app.Activity activity,
+                                    Campaign campaign,
+                                    CampaignStore store,
+                                    TierOfPlay tier,
+                                    List<MagicItemRarity> overMax) {
+        StringBuilder msg = new StringBuilder();
+        msg.append("Committing these items will push the following past the DMG's recommended count for ")
+                .append(tierLabel(tier)).append(":\n\n");
+        for (MagicItemRarity rarity : overMax) {
+            int target = Campaign.targetForTierAndRarity(tier, rarity);
+            int current = campaign.getCount(tier, rarity);
+            msg.append("• ").append(rarityLabel(rarity))
+                    .append(": already ").append(current).append(" of ").append(target)
+                    .append("\n");
+        }
+        msg.append("\nOver-max counts will be shown in red on the Tracker.");
+
+        LinearLayout container = new LinearLayout(activity);
+        container.setOrientation(LinearLayout.VERTICAL);
+        int hPad = dp(24);
+        container.setPadding(hPad, dp(16), hPad, 0);
+
+        TextView body = new TextView(activity);
+        body.setText(msg.toString());
+        body.setTextSize(16);
+        container.addView(body);
+
+        CheckBox suppress = new CheckBox(activity);
+        suppress.setText("Don't show this warning again for this campaign");
+        suppress.setPadding(0, dp(16), 0, 0);
+        container.addView(suppress);
+
+        new AlertDialog.Builder(activity)
+                .setTitle("Over recommended count")
+                .setView(container)
+                .setPositiveButton("Close", (d, w) -> {
+                    if (suppress.isChecked()) {
+                        campaign.setSuppressOverMaxWarning(true);
+                        store.saveCampaign(campaign);
+                    }
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private static String tierLabel(TierOfPlay tier) {
+        switch (tier) {
+            case TIER_1: return "Tier 1 (levels 1–4)";
+            case TIER_2: return "Tier 2 (levels 5–10)";
+            case TIER_3: return "Tier 3 (levels 11–16)";
+            case TIER_4: return "Tier 4 (levels 17–20)";
+            default: return tier.name();
+        }
+    }
+
+    private static void copyToClipboard(Context context, String text) {
+        ClipboardManager clipboardManager = (ClipboardManager) context
                 .getSystemService(Context.CLIPBOARD_SERVICE);
         clipboardManager.setPrimaryClip(ClipData.newPlainText("Loot", text));
     }

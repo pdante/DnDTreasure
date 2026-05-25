@@ -22,6 +22,7 @@ public class Campaign {
     private long lastUpdated;
     private final int[][] counts;
     private final List<AwardedItem> awardedItems;
+    private boolean suppressOverMaxWarning;
 
     public Campaign(String id, String name) {
         this.id = id;
@@ -30,6 +31,7 @@ public class Campaign {
         this.lastUpdated = this.createdAt;
         this.counts = new int[TIERS][RARITIES];
         this.awardedItems = new ArrayList<>();
+        this.suppressOverMaxWarning = false;
     }
 
     private Campaign(String id,
@@ -37,13 +39,15 @@ public class Campaign {
                      long createdAt,
                      long lastUpdated,
                      int[][] counts,
-                     List<AwardedItem> awardedItems) {
+                     List<AwardedItem> awardedItems,
+                     boolean suppressOverMaxWarning) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
         this.lastUpdated = lastUpdated;
         this.counts = counts;
         this.awardedItems = awardedItems;
+        this.suppressOverMaxWarning = suppressOverMaxWarning;
     }
 
     public String getId() { return id; }
@@ -92,6 +96,13 @@ public class Campaign {
         touch();
     }
 
+    public boolean isSuppressOverMaxWarning() { return suppressOverMaxWarning; }
+
+    public void setSuppressOverMaxWarning(boolean value) {
+        this.suppressOverMaxWarning = value;
+        touch();
+    }
+
     public int totalCount() {
         int sum = 0;
         for (int t = 0; t < TIERS; t++) {
@@ -125,6 +136,7 @@ public class Campaign {
             itemsArr.put(item.toJson());
         }
         obj.put("awardedItems", itemsArr);
+        obj.put("suppressOverMaxWarning", suppressOverMaxWarning);
         return obj;
     }
 
@@ -156,7 +168,8 @@ public class Campaign {
                 awardedItems.add(AwardedItem.fromJson(itemsArr.getJSONObject(i)));
             }
         }
-        return new Campaign(id, name, createdAt, lastUpdated, counts, awardedItems);
+        boolean suppressOverMaxWarning = obj.optBoolean("suppressOverMaxWarning", false);
+        return new Campaign(id, name, createdAt, lastUpdated, counts, awardedItems, suppressOverMaxWarning);
     }
 
     public static int targetForTierAndRarity(TierOfPlay tier, MagicItemRarity rarity) {
