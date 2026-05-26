@@ -92,12 +92,13 @@ public class LootGenerator extends AppCompatActivity
                 // end up at the wrong positions when the tab list changes.
                 // finish + new Intent guarantees a fresh activity with no
                 // saved fragment / view-pager state to restore.
+                // FLAG_ACTIVITY_NO_ANIMATION on the intent suppresses both the
+                // close and open transitions, so no override call is needed.
                 android.content.Intent restart =
                         new android.content.Intent(this, LootGenerator.class);
                 restart.addFlags(android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 finish();
                 startActivity(restart);
-                overridePendingTransition(0, 0);
             }
         };
         prefs.registerOnSharedPreferenceChangeListener(titlePrefsListener);

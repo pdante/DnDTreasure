@@ -1,6 +1,6 @@
 package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
-import android.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -101,14 +101,14 @@ public class ItemsFragment extends Fragment {
         for (int i = 0; i < max; i++) arr[i] = Integer.toString(i + 1);
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
                 getActivity(), R.layout.spinner, arr);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         iterationSpinner.setAdapter(adapter);
     }
 
     private void setSpinnerArray(Spinner spinner, int arrayResId) {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 getActivity(), arrayResId, R.layout.spinner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
 
@@ -142,7 +142,7 @@ public class ItemsFragment extends Fragment {
             TreasureFragment.packItems(args, generator.getGeneratedItems(), generator.getPartyTier());
         }
         how.setArguments(args);
-        how.show(getActivity().getFragmentManager(), "tag");
+        how.show(requireActivity().getSupportFragmentManager(), "tag");
     }
 
     private ChallengeRating getChallengeRating(String challengeRatingString) {

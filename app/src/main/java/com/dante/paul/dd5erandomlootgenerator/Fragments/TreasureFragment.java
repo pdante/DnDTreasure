@@ -1,6 +1,6 @@
 package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
-import android.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -56,7 +56,7 @@ public class TreasureFragment extends Fragment {
         for (int i = 0; i < 500; i++) iterationArray[i] = Integer.toString(i + 1);
         ArrayAdapter<CharSequence> iterAdapter = new ArrayAdapter<>(
                 getActivity(), R.layout.spinner, iterationArray);
-        iterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        iterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         iterationSpinner.setAdapter(iterAdapter);
 
         // 2024-only spinners populated up-front but hidden until 2024 mode
@@ -117,7 +117,7 @@ public class TreasureFragment extends Fragment {
     private void setSpinnerArray(Spinner spinner, int arrayResId) {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 getActivity(), arrayResId, R.layout.spinner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
 
@@ -157,7 +157,7 @@ public class TreasureFragment extends Fragment {
             packItems(args, treasure.getGeneratedItems(), treasure.getPartyTier());
         }
         how.setArguments(args);
-        how.show(getActivity().getFragmentManager(), "tag");
+        how.show(requireActivity().getSupportFragmentManager(), "tag");
     }
 
     static void packItems(Bundle args, List<MagicItem2024Generator.Result> items, TierOfPlay tier) {

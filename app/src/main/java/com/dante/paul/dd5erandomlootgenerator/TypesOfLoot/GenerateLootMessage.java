@@ -2,7 +2,6 @@ package com.dante.paul.dd5erandomlootgenerator.TypesOfLoot;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -15,6 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemRarity;
 import com.dante.paul.dd5erandomlootgenerator.EnumeratedClasses.MagicItemTheme;
@@ -32,7 +34,7 @@ public class GenerateLootMessage extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final android.app.Activity activity = getActivity();
+        final FragmentActivity activity = requireActivity();
         Bundle args = getArguments();
         final String lootMessage = args.getString("loot", "");
         final String lootTitle = args.getString("loot_summary", "");
@@ -110,7 +112,8 @@ public class GenerateLootMessage extends DialogFragment {
         if (!prefix.trim().isEmpty()) {
             TextView prefixView = new TextView(getActivity());
             prefixView.setText(prefix.trim());
-            prefixView.setTextSize(16);
+            prefixView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(R.dimen.text_dialog_body));
             prefixView.setGravity(Gravity.CENTER_HORIZONTAL);
             prefixView.setPadding(0, 0, 0, dp(8));
             container.addView(prefixView);
@@ -118,7 +121,8 @@ public class GenerateLootMessage extends DialogFragment {
 
         TextView header = new TextView(getActivity());
         header.setText("Items:");
-        header.setTextSize(16);
+        header.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(R.dimen.text_dialog_body));
         header.setTypeface(header.getTypeface(), Typeface.BOLD);
         header.setPadding(0, dp(4), 0, dp(4));
         container.addView(header);
@@ -127,7 +131,8 @@ public class GenerateLootMessage extends DialogFragment {
             CheckBox cb = new CheckBox(getActivity());
             cb.setText(formatItemLabel(names[i], rarities[i], themes[i]));
             cb.setChecked(true);
-            cb.setTextSize(16);
+            cb.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(R.dimen.text_dialog_body));
             checks[i] = cb;
             container.addView(cb);
         }
@@ -242,7 +247,7 @@ public class GenerateLootMessage extends DialogFragment {
         return over;
     }
 
-    private void showOverMaxWarning(android.app.Activity activity,
+    private void showOverMaxWarning(FragmentActivity activity,
                                     Campaign campaign,
                                     CampaignStore store,
                                     TierOfPlay tier,
@@ -266,7 +271,8 @@ public class GenerateLootMessage extends DialogFragment {
 
         TextView body = new TextView(activity);
         body.setText(msg.toString());
-        body.setTextSize(16);
+        body.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(R.dimen.text_dialog_body));
         container.addView(body);
 
         CheckBox suppress = new CheckBox(activity);
