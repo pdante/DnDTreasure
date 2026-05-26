@@ -1,0 +1,19 @@
+<resources>
+    <!-- Tablet landscape: bigger again than tablet portrait. -->
+    <dimen name="text_toolbar_title">42sp</dimen>
+    <dimen name="text_toolbar_subtitle">22sp</dimen>
+    <dimen name="text_tab">30sp</dimen>
+    <dimen name="text_popup_menu">24sp</dimen>
+    <dimen name="text_dialog_title">28sp</dimen>
+    <dimen name="text_dialog_message">22sp</dimen>
+    <dimen name="text_dialog_button">20sp</dimen>
+    <dimen name="text_dialog_body">22sp</dimen>
+    <dimen name="text_spinner">24sp</dimen>
+    <dimen name="toolbar_min_height">104dp</dimen>
+    <dimen name="tab_min_height">72dp</dimen>
+    <dimen name="text_tracker_header">20sp</dimen>
+    <dimen name="text_tracker_cell">22sp</dimen>
+    <dimen name="text_tracker_subheading">20sp</dimen>
+    <dimen name="text_tracker_total">28sp</dimen>
+    <dimen name="text_tracker_button">20sp</dimen>
+</resources>

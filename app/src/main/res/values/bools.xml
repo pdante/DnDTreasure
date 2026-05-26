@@ -1,0 +1,4 @@
+<resources>
+    <!-- Phones: lock to portrait. Overridden in values-sw600dp/. -->
+    <bool name="portrait_only">true</bool>
+</resources>

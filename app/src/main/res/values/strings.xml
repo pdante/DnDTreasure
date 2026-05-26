@@ -53,7 +53,9 @@
     <string name="remove_ads">Remove Ads</string>
     <string name="remove_ads_thanks">Ads removed. Thanks for your support!</string>
     <string name="remove_ads_failed">Purchase could not be completed. Please try again.</string>
-    <string name="restore_purchases">Restore Purchases</string>
+    <string name="restore_purchase_found">Purchase restored. Thanks for your support!</string>
+    <string name="restore_purchase_none">No previous purchase found on this account.</string>
+    <string name="restore_purchases">Restore Purchase</string>
     <string name="rules_edition">5e Rules Edition</string>
     <string name="rules_edition_dialog_title">Choose Rules Edition</string>
     <string name="rules_edition_2014">2014 (Classic)</string>
@@ -74,9 +76,20 @@
     <string name="tracker_delete_confirm_title">Delete campaign?</string>
     <string name="tracker_delete_confirm_message">Delete \"%1$s\"?\n\nThis will permanently remove all of its tracked items and tier counts. This cannot be undone.\n\nAnother campaign will become active afterward.</string>
     <string name="tracker_delete_only_confirm_message">Delete \"%1$s\"?\n\nThis is your only campaign. Deleting it will permanently remove all of its tracked items and tier counts (this cannot be undone) and start a fresh, empty campaign called \"Default Campaign\".</string>
-    <string name="tracker_delete_all_title">Delete all campaigns?</string>
-    <string name="tracker_delete_all_message">Permanently remove all %1$d campaigns and every tracked item and tier count? This cannot be undone.\n\nA fresh, empty campaign called \"Default Campaign\" will be created afterward.</string>
-    <string name="action_delete_all_campaigns">Delete all campaigns</string>
+    <plurals name="tracker_delete_all_title">
+        <item quantity="one">Delete this campaign?</item>
+        <item quantity="other">Delete all campaigns?</item>
+    </plurals>
+    <plurals name="tracker_delete_all_message">
+        <item quantity="one">Permanently remove this campaign and every tracked item and tier count? This cannot be undone.\n\nA fresh, empty campaign called \"Default Campaign\" will be created afterward.</item>
+        <item quantity="other">Permanently remove all %1$d campaigns and every tracked item and tier count? This cannot be undone.\n\nA fresh, empty campaign called \"Default Campaign\" will be created afterward.</item>
+    </plurals>
+    <string name="tracker_delete_all_confirm">Delete</string>
+    <plurals name="tracker_delete_all_toast">
+        <item quantity="one">Campaign deleted</item>
+        <item quantity="other">All campaigns deleted</item>
+    </plurals>
+    <string name="action_delete_all_campaigns">Delete All Campaigns</string>
     <string name="action_rate_app">Rate this app</string>
     <string name="action_send_feedback">Send feedback</string>
     <string name="action_share_app">Share app</string>
@@ -88,8 +101,8 @@
     <string name="privacy_policy_url">https://verdantsoftware.github.io/LootForge/</string>
     <string name="no_browser_app">No app available to open this link</string>
     <string name="no_email_app">No email app available</string>
-    <string name="tracker_reset_confirm_title">Reset counts?</string>
-    <string name="tracker_reset_confirm_message">Reset all counts for \"%1$s\" to zero?</string>
+    <string name="tracker_reset_confirm_title">Reset campaign?</string>
+    <string name="tracker_reset_confirm_message">Reset all counts for \"%1$s\" to zero and clear its awarded items list? This cannot be undone.</string>
     <string name="tracker_edit_dialog_title_format">%1$s — %2$s</string>
     <string name="tracker_header_tier">Tier</string>
     <string name="tracker_rarity_common">Common</string>
@@ -126,6 +139,26 @@
     <string name="treasure_banner_ad">ca-app-pub-9108289994838354/7302796227</string>
     <string name="spell_banner_ad">ca-app-pub-9108289994838354/8779529427</string>
     <string name="item_banner_ad">ca-app-pub-9108289994838354/2732995820</string>
-    <string name="test_banner_ad">ca-app-pub-3940256099942544/6300978111</string>
+    <!--
+        Banner ad units, keyed by ruleset + tab. The values active in code are
+        Google's universal test banner unit so dev builds never serve real ads.
+        Real production unit IDs are listed alongside; swap them in to go live.
+    -->
+    <!-- Real: ca-app-pub-3944085508693815/5079480591 -->
+    <string name="banner_ad_2024_treasure">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/1878602187 -->
+    <string name="banner_ad_2024_tracker">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/6939357177 -->
+    <string name="banner_ad_2024_items">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/8775183028 -->
+    <string name="banner_ad_2024_spells">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/7270529662 -->
+    <string name="banner_ad_2014_treasure">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/5366421056 (2014 has no Tracker tab today; reserved for parity) -->
+    <string name="banner_ad_2014_tracker">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/8990805448 -->
+    <string name="banner_ad_2014_items">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- Real: ca-app-pub-3944085508693815/2740257716 -->
+    <string name="banner_ad_2014_spells">ca-app-pub-3940256099942544/6300978111</string>
     <string name="txtCredits"><a href=" PayPal.Me/PDante">here</a></string>
 </resources>

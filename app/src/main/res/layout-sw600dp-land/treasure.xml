@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Tablet landscape Treasure tab.
+  Col1 holds the spinners that are always visible (Challenge + Iterations).
+  Col2 holds the 2024-Hoard-only spinners (Party Level + Theme). In
+  Individual mode Col2's two children are visibility=gone, so the column
+  collapses entirely and the form reads as a single centered column.
+  In Hoard mode both columns show as a 2x2 grid. Generate button to the
+  right of both columns, centered vertically.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/treasure"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <RadioGroup
+            android:id="@+id/radio_encounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:checkedButton="@+id/radio_individual"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_individual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/individual"
+                android:textSize="28sp"/>
+
+            <RadioButton
+                android:id="@+id/radio_hoard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:text="@string/hoard"
+                android:textSize="28sp"/>
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <!-- Col1: always-visible spinners -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/challenge_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/challenge"
+                    android:textColor="@color/black"
+                    android:textSize="26sp"/>
+
+                <Spinner
+                    android:id="@+id/challenge_spinner"
+                    android:layout_width="280dp"
+                    android:layout_height="68dp"
+                    android:background="@drawable/spinner_design_external"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/iterations"
+                    android:textColor="@color/black"
+                    android:textSize="26sp"/>
+
+                <Spinner
+                    android:id="@+id/iteration_spinner"
+                    android:layout_width="280dp"
+                    android:layout_height="68dp"
+                    android:background="@drawable/spinner_design_external"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <!-- Col2: 2024-Hoard-only spinners. Collapses entirely in Individual. -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="32dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/party_level_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/party_level"
+                    android:textColor="@color/black"
+                    android:textSize="26sp"
+                    android:visibility="gone"/>
+
+                <Spinner
+                    android:id="@+id/party_level_spinner"
+                    android:layout_width="280dp"
+                    android:layout_height="68dp"
+                    android:background="@drawable/spinner_design_external"
+                    android:gravity="center"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/theme_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/theme"
+                    android:textColor="@color/black"
+                    android:textSize="26sp"
+                    android:visibility="gone"/>
+
+                <Spinner
+                    android:id="@+id/theme_spinner"
+                    android:layout_width="280dp"
+                    android:layout_height="68dp"
+                    android:background="@drawable/spinner_design_external"
+                    android:gravity="center"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <!-- Generate button -->
+            <Button
+                android:id="@+id/treasure_send"
+                android:layout_width="380dp"
+                android:layout_height="220dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="48dp"
+                android:background="@drawable/button_design"
+                android:onClick="generate"
+                android:text="@string/treasure_send"
+                android:textSize="32sp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

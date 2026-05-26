@@ -15,9 +15,13 @@
         android:layout_alignParentTop="true"
         android:background="@color/brownochre"
         android:elevation="6dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:minHeight="@dimen/toolbar_min_height"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:titleTextAppearance="@style/AppToolbarTitle"
+        app:subtitleTextAppearance="@style/AppToolbarSubtitle" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
@@ -26,8 +30,10 @@
         android:layout_below="@+id/toolbar"
         android:background="@color/brownochre"
         android:elevation="6dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+        android:minHeight="@dimen/tab_min_height"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:tabMinWidth="0dp"
+        app:tabTextAppearance="@style/AppTabText"/>
 
     <FrameLayout
         android:id="@+id/ad_container"

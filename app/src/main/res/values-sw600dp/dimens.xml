@@ -1,0 +1,19 @@
+<resources>
+    <!-- Tablet font sizes — larger than the phone defaults in values/dimens.xml. -->
+    <dimen name="text_toolbar_title">36sp</dimen>
+    <dimen name="text_toolbar_subtitle">18sp</dimen>
+    <dimen name="text_tab">24sp</dimen>
+    <dimen name="text_popup_menu">22sp</dimen>
+    <dimen name="text_dialog_title">26sp</dimen>
+    <dimen name="text_dialog_message">20sp</dimen>
+    <dimen name="text_dialog_button">18sp</dimen>
+    <dimen name="text_dialog_body">20sp</dimen>
+    <dimen name="text_spinner">22sp</dimen>
+    <dimen name="toolbar_min_height">88dp</dimen>
+    <dimen name="tab_min_height">64dp</dimen>
+    <dimen name="text_tracker_header">18sp</dimen>
+    <dimen name="text_tracker_cell">20sp</dimen>
+    <dimen name="text_tracker_subheading">18sp</dimen>
+    <dimen name="text_tracker_total">26sp</dimen>
+    <dimen name="text_tracker_button">18sp</dimen>
+</resources>

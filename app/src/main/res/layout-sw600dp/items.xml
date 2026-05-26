@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Tablet (sw600dp+) portrait layout for the Items tab. Centered column
+  with generous sizing.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/items"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp">
+
+        <TextView
+            android:id="@+id/challenge_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/challenge"
+            android:textColor="@color/black"
+            android:textSize="30sp"/>
+
+        <Spinner
+            android:id="@+id/challenge_spinner"
+            android:layout_width="320dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/party_level_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:text="@string/party_level"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/party_level_spinner"
+            android:layout_width="320dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/theme_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:text="@string/theme"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/theme_spinner"
+            android:layout_width="320dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:text="@string/number_of_items"
+            android:textColor="@color/black"
+            android:textSize="30sp"/>
+
+        <Spinner
+            android:id="@+id/iteration_spinner"
+            android:layout_width="320dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/item_send"
+            android:layout_width="400dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/button_design"
+            android:onClick="generate"
+            android:text="@string/item_send"
+            android:textSize="30sp"/>
+
+    </LinearLayout>
+</FrameLayout>

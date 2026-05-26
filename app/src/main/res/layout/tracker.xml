@@ -26,6 +26,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
                 android:text="@string/tracker_new"/>
 
             <Button
@@ -33,6 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
                 android:text="@string/tracker_rename"/>
 
             <Button
@@ -40,6 +42,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
                 android:text="@string/tracker_reset"/>
 
             <Button
@@ -47,6 +50,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
                 android:text="@string/tracker_delete"/>
         </LinearLayout>
 
@@ -61,7 +65,7 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/tracker_grid_subheading"
             android:textColor="@color/black"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_tracker_subheading"
             android:paddingTop="4dp"
             android:paddingBottom="8dp"
             android:gravity="center"/>
@@ -80,7 +84,7 @@
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_tracker_total"
             android:textStyle="bold"/>
 
         <Button
@@ -88,6 +92,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:textSize="@dimen/text_tracker_button"
             android:text="@string/tracker_view_history"/>
     </LinearLayout>
 </ScrollView>

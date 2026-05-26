@@ -1,0 +1,4 @@
+<resources>
+    <!-- Tablets: allow free rotation. -->
+    <bool name="portrait_only">false</bool>
+</resources>

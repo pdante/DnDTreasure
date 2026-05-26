@@ -2,12 +2,14 @@ package com.dante.paul.dd5erandomlootgenerator.Fragments;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TableLayout;
@@ -133,7 +135,8 @@ public class TrackerFragment extends Fragment {
     private TextView headerCell(String text) {
         TextView tv = new TextView(getActivity());
         tv.setText(text);
-        tv.setTextSize(12);
+        tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.text_tracker_header));
         tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.BOLD);
         tv.setTextColor(Color.BLACK);
         tv.setPadding(dp(2), dp(6), dp(2), dp(6));
@@ -147,7 +150,8 @@ public class TrackerFragment extends Fragment {
         TextView tv = new TextView(getActivity());
         tv.setPadding(dp(2), dp(10), dp(2), dp(10));
         tv.setGravity(Gravity.CENTER);
-        tv.setTextSize(14);
+        tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.text_tracker_cell));
         if (target == 0 && count == 0) {
             tv.setText("—");
             tv.setTextColor(Color.GRAY);
@@ -191,21 +195,24 @@ public class TrackerFragment extends Fragment {
         EditText input = new EditText(getActivity());
         input.setHint("Campaign name");
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
-                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         input.setSingleLine(true);
-        input.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_new_dialog_title)
                 .setView(wrapWithPadding(input))
-                .setPositiveButton(android.R.string.ok, (d, which) -> {
-                    String name = input.getText().toString().trim();
-                    if (name.isEmpty()) return;
-                    Campaign created = store.createCampaign(name);
-                    store.setActive(created.getId());
-                    rebuildGrid();
-                })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+        Runnable commit = () -> {
+            String name = input.getText().toString().trim();
+            if (name.isEmpty()) return;
+            Campaign created = store.createCampaign(name);
+            store.setActive(created.getId());
+            rebuildGrid();
+            dialog.dismiss();
+        };
+        bindImeAccept(input, commit);
         showKeyboardWith(dialog, input);
     }
 
@@ -215,20 +222,45 @@ public class TrackerFragment extends Fragment {
         input.setText(active.getName());
         input.setSelectAllOnFocus(true);
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
-                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         input.setSingleLine(true);
-        input.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_rename_dialog_title)
                 .setView(wrapWithPadding(input))
-                .setPositiveButton(android.R.string.ok, (d, which) -> {
-                    String name = input.getText().toString().trim();
-                    if (name.isEmpty()) return;
-                    store.renameCampaign(active.getId(), name);
-                })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+        Runnable commit = () -> {
+            String name = input.getText().toString().trim();
+            if (name.isEmpty()) return;
+            store.renameCampaign(active.getId(), name);
+            dialog.dismiss();
+        };
+        bindImeAccept(input, commit);
         showKeyboardWith(dialog, input);
+    }
+
+    /**
+     * Wire the soft keyboard's "Done" action and the physical Enter key to
+     * invoke {@code commit}. Used by text-entry dialogs that have no positive
+     * button — Enter is the only way to accept.
+     */
+    private static void bindImeAccept(EditText input, Runnable commit) {
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            boolean isImeAccept = actionId == EditorInfo.IME_ACTION_DONE
+                    || actionId == EditorInfo.IME_ACTION_GO
+                    || actionId == EditorInfo.IME_ACTION_SEND
+                    || actionId == EditorInfo.IME_ACTION_NEXT;
+            boolean isHardwareEnter = event != null
+                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                    && event.getAction() == KeyEvent.ACTION_DOWN;
+            if (isImeAccept || isHardwareEnter) {
+                commit.run();
+                return true;
+            }
+            return false;
+        });
     }
 
     private void showKeyboardWith(AlertDialog dialog, EditText input) {

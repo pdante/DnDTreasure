@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Drop-down item layout for our spinners; mirrors
+  android.R.layout.simple_spinner_dropdown_item but uses our scalable
+  text size dimen so dropdowns enlarge on tablets.
+-->
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    style="?android:attr/spinnerDropDownItemStyle"
+    android:singleLine="true"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeightSmall"
+    android:ellipsize="marquee"
+    android:textSize="@dimen/text_spinner"
+    android:textColor="?android:attr/textColorPrimary" />

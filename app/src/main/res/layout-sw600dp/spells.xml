@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Tablet (sw600dp+) portrait layout for the Spells tab. Centered column
+  with generous sizing to match Treasure/Items.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/spells"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/spell_class"
+            android:textColor="@color/black"
+            android:textSize="30sp"/>
+
+        <Spinner
+            android:id="@+id/class_spinner"
+            android:layout_width="320dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:text="@string/level"
+            android:textColor="@color/black"
+            android:textSize="30sp"/>
+
+        <Spinner
+            android:id="@+id/level_spinner"
+            android:layout_width="320dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/spell_send"
+            android:layout_width="400dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/button_design"
+            android:onClick="generate"
+            android:text="@string/spell_send"
+            android:textSize="30sp"/>
+
+    </LinearLayout>
+</FrameLayout>

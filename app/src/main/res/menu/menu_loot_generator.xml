@@ -3,29 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.dante.paul.dd5erandomlootgenerator.LootGenerator">
     <item
-        android:id="@+id/action_remove_ads"
-        android:orderInCategory="10"
-        android:title="@string/remove_ads"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_restore_purchases"
-        android:orderInCategory="20"
-        android:title="@string/restore_purchases"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_rules_edition"
-        android:orderInCategory="30"
+        android:orderInCategory="10"
         android:title="@string/rules_edition"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_delete_all_campaigns"
-        android:orderInCategory="40"
+        android:orderInCategory="20"
         android:title="@string/action_delete_all_campaigns"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="30"
         android:title="@string/about"
         android:onClick="about"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_remove_ads"
+        android:orderInCategory="40"
+        android:title="@string/remove_ads"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_restore_purchases"
+        android:orderInCategory="50"
+        android:title="@string/restore_purchases"
         app:showAsAction="never" />
 </menu>

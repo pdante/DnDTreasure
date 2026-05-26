@@ -45,6 +45,8 @@ public class LootGenerator extends AppCompatActivity
     private boolean adsEnabled;
     private ConsentInformation consentInformation;
     private final AtomicBoolean adsSdkInitialized = new AtomicBoolean(false);
+    private boolean canRequestAds;
+    private ViewPager viewPager;
     private SharedPreferences.OnSharedPreferenceChangeListener titlePrefsListener;
     private SharedPreferences.OnSharedPreferenceChangeListener campaignPrefsListener;
     private Toolbar toolbar;
@@ -55,10 +57,12 @@ public class LootGenerator extends AppCompatActivity
         // The pager's tab composition changes between editions (Tracker is
         // 2024-only), so any restored fragment / ViewPager state from a
         // previous activity instance can land at the wrong positions.
-        // Always start fresh — no saved state restoration. The cost is
-        // losing in-fragment scroll/selection state on rotation, which is
-        // acceptable for this app.
-        super.onCreate(null);
+        // Lock to portrait on phones; tablets keep both orientations.
+        // portrait_only is overridden to false in values-sw600dp/.
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loot_generator);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_layout), (v, insets) -> {
@@ -110,17 +114,22 @@ public class LootGenerator extends AppCompatActivity
 
         boolean is2024 = SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024;
         TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Treasure"));
-        if (is2024) tabLayout.addTab(tabLayout.newTab().setText("Tracker"));
-        tabLayout.addTab(tabLayout.newTab().setText("Items"));
-        tabLayout.addTab(tabLayout.newTab().setText("Spells"));
+        tabLayout.addTab(addCustomTab(tabLayout, "Treasure"));
+        if (is2024) tabLayout.addTab(addCustomTab(tabLayout, "Tracker"));
+        tabLayout.addTab(addCustomTab(tabLayout, "Items"));
+        tabLayout.addTab(addCustomTab(tabLayout, "Spells"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final ViewPager viewPager = findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
         final PagerAdapter adapter = new PagerAdapter(
                 getSupportFragmentManager(), is2024);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override public void onPageSelected(int position) {
+                loadBannerAdForCurrentTab();
+            }
+        });
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override public void onTabSelected(TabLayout.Tab tab) { viewPager.setCurrentItem(tab.getPosition()); }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
@@ -132,6 +141,20 @@ public class LootGenerator extends AppCompatActivity
             requestConsentAndLoadAd();
         } else {
             adContainer.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // FragmentStatePagerAdapter can throw IllegalStateException here if
+        // the saved fragment IDs don't line up with the new FragmentManager
+        // (e.g. mid-edition-swap). Swallow the exception so rotation never
+        // crashes; in that pathological case we simply lose the saved
+        // ViewPager position, which is acceptable.
+        try {
+            super.onRestoreInstanceState(savedInstanceState);
+        } catch (IllegalStateException e) {
+            android.util.Log.w("LootGenerator", "Skipping state restore due to fragment mismatch", e);
         }
     }
 
@@ -159,14 +182,43 @@ public class LootGenerator extends AppCompatActivity
         if (!adsSdkInitialized.getAndSet(true)) {
             MobileAds.initialize(this, status -> {});
         }
-        if (adView != null || !adsEnabled) return;
-        adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.test_banner_ad));
-        adView.setAdSize(getAdaptiveBannerSize());
+        canRequestAds = true;
+        loadBannerAdForCurrentTab();
+    }
+
+    private void loadBannerAdForCurrentTab() {
+        if (!adsEnabled || !canRequestAds) return;
+        if (adView != null) {
+            adView.destroy();
+            adView = null;
+        }
         adContainer.removeAllViews();
+        adView = new AdView(this);
+        adView.setAdUnitId(currentBannerAdUnitId());
+        adView.setAdSize(getAdaptiveBannerSize());
         adContainer.addView(adView);
         adContainer.setVisibility(View.VISIBLE);
         adView.loadAd(new AdRequest.Builder().build());
+    }
+
+    private String currentBannerAdUnitId() {
+        boolean is2024 = SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024;
+        int pos = viewPager != null ? viewPager.getCurrentItem() : 0;
+        if (is2024) {
+            // 2024 tab order: Treasure, Tracker, Items, Spells
+            switch (pos) {
+                case 1: return getString(R.string.banner_ad_2024_tracker);
+                case 2: return getString(R.string.banner_ad_2024_items);
+                case 3: return getString(R.string.banner_ad_2024_spells);
+                default: return getString(R.string.banner_ad_2024_treasure);
+            }
+        }
+        // 2014 tab order: Treasure, Items, Spells
+        switch (pos) {
+            case 1: return getString(R.string.banner_ad_2014_items);
+            case 2: return getString(R.string.banner_ad_2014_spells);
+            default: return getString(R.string.banner_ad_2014_treasure);
+        }
     }
 
     private AdSize getAdaptiveBannerSize() {
@@ -206,6 +258,20 @@ public class LootGenerator extends AppCompatActivity
     @Override
     public void onPurchaseError(@androidx.annotation.NonNull String message) {
         runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    @Override
+    public void onRestoreCompleted(boolean entitlementFound) {
+        // entitlementFound==true with adsRemovedCached already true means the
+        // user tapped Restore on a device that already knew about the purchase
+        // (cache hit). onAdsRemovedChanged will NOT fire in that case, so we
+        // still need this Toast to acknowledge their tap.
+        runOnUiThread(() -> {
+            int msg = entitlementFound
+                    ? R.string.restore_purchase_found
+                    : R.string.restore_purchase_none;
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        });
     }
 
     @Override
@@ -252,9 +318,19 @@ public class LootGenerator extends AppCompatActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        // Remove Ads and Restore Purchase are both billing-related; once the
+        // user has paid to remove ads there is nothing for either action to do.
+        boolean showBillingActions =
+                billingManager == null || !billingManager.isAdsRemovedCached();
         MenuItem remove = menu.findItem(R.id.action_remove_ads);
-        if (remove != null) {
-            remove.setVisible(billingManager == null || !billingManager.isAdsRemovedCached());
+        if (remove != null) remove.setVisible(showBillingActions);
+        MenuItem restore = menu.findItem(R.id.action_restore_purchases);
+        if (restore != null) restore.setVisible(showBillingActions);
+        MenuItem deleteAll = menu.findItem(R.id.action_delete_all_campaigns);
+        if (deleteAll != null) {
+            // Tracker (and therefore campaigns) is 2024-only.
+            deleteAll.setVisible(
+                    SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -321,6 +397,21 @@ public class LootGenerator extends AppCompatActivity
                 .show();
     }
 
+    private TabLayout.Tab addCustomTab(TabLayout tabLayout, String text) {
+        // Material's built-in TabView re-applies textSize from theme on every
+        // layout pass, defeating any post-set size override. So we provide our
+        // own TextView via setCustomView with the size we actually want.
+        android.widget.TextView tv = new android.widget.TextView(this);
+        tv.setText(text);
+        tv.setAllCaps(true);
+        tv.setGravity(android.view.Gravity.CENTER);
+        tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.text_tab));
+        tv.setTextColor(android.graphics.Color.WHITE);
+        tv.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        return tabLayout.newTab().setText(text).setCustomView(tv);
+    }
+
     private void openPlayListing() {
         String pkg = getPackageName();
         android.net.Uri market = android.net.Uri.parse("market://details?id=" + pkg);
@@ -377,14 +468,20 @@ public class LootGenerator extends AppCompatActivity
         CampaignStore store = new CampaignStore(this);
         List<Campaign> all = store.listCampaigns();
         int count = all.size();
+        String title = getResources().getQuantityString(
+                R.plurals.tracker_delete_all_title, count);
+        String message = getResources().getQuantityString(
+                R.plurals.tracker_delete_all_message, count, count);
         new AlertDialog.Builder(this)
-                .setTitle(R.string.tracker_delete_all_title)
-                .setMessage(getString(R.string.tracker_delete_all_message, count))
-                .setPositiveButton(R.string.tracker_delete_all_title, (dialog, which) -> {
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.tracker_delete_all_confirm, (dialog, which) -> {
                     for (Campaign c : all) {
                         store.deleteCampaign(c.getId());
                     }
-                    Toast.makeText(this, "All campaigns deleted", Toast.LENGTH_SHORT).show();
+                    String toast = getResources().getQuantityString(
+                            R.plurals.tracker_delete_all_toast, count);
+                    Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -409,7 +506,8 @@ public class LootGenerator extends AppCompatActivity
                 "If you like the app and would like to make a donation: https://paypal.me/PDante\n\n" +
                 "Background image of scroll provided by https://www.myfreetextures.com";
         body.setText(text);
-        body.setTextSize(16);
+        body.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.text_dialog_body));
         body.setAutoLinkMask(android.text.util.Linkify.WEB_URLS);
         body.setLinksClickable(true);
         body.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
@@ -441,6 +539,8 @@ public class LootGenerator extends AppCompatActivity
         android.widget.Button btn = new android.widget.Button(this);
         btn.setText(textRes);
         btn.setAllCaps(false);
+        btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.text_dialog_body));
         btn.setLayoutParams(lp);
         btn.setOnClickListener(listener);
         return btn;

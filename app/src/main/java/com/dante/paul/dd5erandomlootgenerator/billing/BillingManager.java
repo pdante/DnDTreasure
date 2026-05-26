@@ -32,6 +32,8 @@ public class BillingManager {
     public interface Listener {
         void onAdsRemovedChanged(boolean adsRemoved);
         void onPurchaseError(@NonNull String message);
+        /** Called once per user-initiated {@link #restorePurchases()} call. */
+        void onRestoreCompleted(boolean entitlementFound);
     }
 
     private final Context appContext;
@@ -39,6 +41,12 @@ public class BillingManager {
     private final BillingClient billingClient;
     private ProductDetails removeAdsProduct;
     private boolean adsRemovedCached;
+    /**
+     * True while we owe the user a Toast for an explicit "Restore Purchase"
+     * tap. Consumed by the next {@link #queryPurchases} callback (or by a
+     * billing-setup failure if we never get that far).
+     */
+    private boolean pendingRestoreFeedback;
 
     public BillingManager(@NonNull Context context, @NonNull Listener listener) {
         this.appContext = context.getApplicationContext();
@@ -66,6 +74,11 @@ public class BillingManager {
                     queryPurchases();
                 } else {
                     Log.w(TAG, "Billing setup failed: " + result.getDebugMessage());
+                    if (pendingRestoreFeedback) {
+                        pendingRestoreFeedback = false;
+                        listener.onPurchaseError(
+                                "Could not reach the Play Store. Please try again.");
+                    }
                 }
             }
 
@@ -101,7 +114,10 @@ public class BillingManager {
     }
 
     public void restorePurchases() {
+        pendingRestoreFeedback = true;
         if (!billingClient.isReady()) {
+            // start() will trigger queryPurchases() once the connection is up,
+            // and the pendingRestoreFeedback flag survives that round-trip.
             start();
             return;
         }
@@ -134,9 +150,18 @@ public class BillingManager {
         billingClient.queryPurchasesAsync(params, (result, purchases) -> {
             if (result.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                 handlePurchases(purchases);
-                if (!containsRemoveAds(purchases) && adsRemovedCached) {
+                boolean owned = containsRemoveAds(purchases);
+                if (!owned && adsRemovedCached) {
                     updateAdsRemoved(false);
                 }
+                if (pendingRestoreFeedback) {
+                    pendingRestoreFeedback = false;
+                    listener.onRestoreCompleted(owned);
+                }
+            } else if (pendingRestoreFeedback) {
+                pendingRestoreFeedback = false;
+                listener.onPurchaseError(
+                        "Could not reach the Play Store. Please try again.");
             }
         });
     }
