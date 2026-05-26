@@ -56,6 +56,9 @@
     <string name="restore_purchase_found">Purchase restored. Thanks for your support!</string>
     <string name="restore_purchase_none">No previous purchase found on this account.</string>
     <string name="restore_purchases">Restore Purchase</string>
+    <!-- Replaced at runtime in onPrepareOptionsMenu with "v<versionName>". -->
+    <string name="menu_version_placeholder">Version</string>
+    <string name="menu_version_format">v%1$s</string>
     <string name="rules_edition">5e Rules Edition</string>
     <string name="rules_edition_dialog_title">Choose Rules Edition</string>
     <string name="rules_edition_2014">2014 (Classic)</string>

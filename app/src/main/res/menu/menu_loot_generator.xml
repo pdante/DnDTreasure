@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.dante.paul.dd5erandomlootgenerator.LootGenerator">
+    tools:context="com.verdantsoftware.lootforge.LootGenerator">
     <item
         android:id="@+id/action_rules_edition"
         android:orderInCategory="10"
@@ -27,5 +27,11 @@
         android:id="@+id/action_restore_purchases"
         android:orderInCategory="50"
         android:title="@string/restore_purchases"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_version_label"
+        android:orderInCategory="999"
+        android:enabled="false"
+        android:title="@string/menu_version_placeholder"
         app:showAsAction="never" />
 </menu>
