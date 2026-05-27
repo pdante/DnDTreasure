@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Tablet portrait Tracker tab. Same single-column content as the phone
+  layout, but the block is vertically centered (via gravity on the inner
+  LinearLayout + fillViewport) so it matches the other tabs, which center
+  their forms on tablets. Still scrolls if the content exceeds the screen.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tracker"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/tracker_new"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
+                android:text="@string/tracker_new"/>
+
+            <Button
+                android:id="@+id/tracker_rename"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
+                android:text="@string/tracker_rename"/>
+
+            <Button
+                android:id="@+id/tracker_reset"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
+                android:text="@string/tracker_reset"/>
+
+            <Button
+                android:id="@+id/tracker_delete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_tracker_button"
+                android:text="@string/tracker_delete"/>
+        </LinearLayout>
+
+        <TextView
+            style="@style/textView_nexus5"
+            android:text="@string/tracker_grid_heading"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/tracker_grid_subheading"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_tracker_subheading"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
+            android:gravity="center"/>
+
+        <TableLayout
+            android:id="@+id/tracker_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:shrinkColumns="*"/>
+
+        <TextView
+            android:id="@+id/tracker_total"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_tracker_total"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/tracker_view_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="@dimen/text_tracker_button"
+            android:text="@string/tracker_view_history"/>
+    </LinearLayout>
+</ScrollView>

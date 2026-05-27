@@ -3,15 +3,17 @@
   Tablet (sw600dp+) portrait layout for the Spells tab. Centered column
   with generous sizing to match Treasure/Items.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/spells"
+<!-- No root id: avoids the rotation ClassCastException from sharing an id
+     with the landscape root (a different view class). -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:gravity="center"
         android:orientation="vertical"
         android:paddingTop="32dp"
         android:paddingBottom="32dp"
@@ -24,12 +26,12 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/spell_class"
             android:textColor="@color/black"
-            android:textSize="30sp"/>
+            android:textSize="34sp"/>
 
         <Spinner
             android:id="@+id/class_spinner"
-            android:layout_width="320dp"
-            android:layout_height="80dp"
+            android:layout_width="380dp"
+            android:layout_height="96dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"/>
@@ -38,29 +40,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
             android:text="@string/level"
             android:textColor="@color/black"
-            android:textSize="30sp"/>
+            android:textSize="34sp"/>
 
         <Spinner
             android:id="@+id/level_spinner"
-            android:layout_width="320dp"
-            android:layout_height="80dp"
+            android:layout_width="380dp"
+            android:layout_height="96dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"/>
 
         <Button
             android:id="@+id/spell_send"
-            android:layout_width="400dp"
-            android:layout_height="160dp"
+            android:layout_width="480dp"
+            android:layout_height="200dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="44dp"
             android:background="@drawable/button_design"
             android:onClick="generate"
             android:text="@string/spell_send"
-            android:textSize="30sp"/>
+            android:textSize="34sp"/>
 
     </LinearLayout>
-</FrameLayout>
+</ScrollView>

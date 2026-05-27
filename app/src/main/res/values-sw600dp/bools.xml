@@ -1,4 +1,7 @@
 <resources>
     <!-- Tablets: allow free rotation. -->
     <bool name="portrait_only">false</bool>
+    <!-- Tablets have wide tabs; use the fixed text_tab size instead of
+         auto-shrinking (which is only needed to avoid wrapping on phones). -->
+    <bool name="is_tablet">true</bool>
 </resources>

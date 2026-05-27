@@ -14,7 +14,7 @@
     android:paddingTop="16dp"
     android:paddingBottom="16dp">
 
-    <!-- Left: heading + grid -->
+    <!-- Left: heading + grid (top-aligned) -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"

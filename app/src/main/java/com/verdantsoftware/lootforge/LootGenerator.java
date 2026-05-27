@@ -427,10 +427,29 @@ public class LootGenerator extends AppCompatActivity
         tv.setText(text);
         tv.setAllCaps(true);
         tv.setGravity(android.view.Gravity.CENTER);
-        tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
-                getResources().getDimension(R.dimen.text_tab));
+        tv.setMaxLines(1);
+        tv.setSingleLine(true);
         tv.setTextColor(android.graphics.Color.WHITE);
         tv.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        // Fill the tab cell so auto-size has a width bound to work against.
+        tv.setLayoutParams(new android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (getResources().getBoolean(R.bool.is_tablet)) {
+            // Tablets have wide tabs with no wrapping risk; use the full
+            // text_tab size (auto-size tends to over-shrink here).
+            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(R.dimen.text_tab));
+        } else {
+            // Phones: with four tabs splitting the width, "Treasure"/"Tracker"
+            // wrap to two lines on smaller / e-ink screens. Shrink the label to
+            // fit one line instead of wrapping; text_tab is the preferred max.
+            int maxSp = (int) (getResources().getDimension(R.dimen.text_tab)
+                    / getResources().getDisplayMetrics().scaledDensity);
+            androidx.core.widget.TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                    tv, 9, Math.max(10, maxSp), 1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP);
+        }
         return tabLayout.newTab().setText(text).setCustomView(tv);
     }
 

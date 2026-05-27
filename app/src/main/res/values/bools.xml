@@ -1,4 +1,7 @@
 <resources>
     <!-- Phones: lock to portrait. Overridden in values-sw600dp/. -->
     <bool name="portrait_only">true</bool>
+    <!-- Phones: auto-shrink tab labels to avoid wrapping. Overridden true
+         in values-sw600dp/ where tabs are wide. -->
+    <bool name="is_tablet">false</bool>
 </resources>
