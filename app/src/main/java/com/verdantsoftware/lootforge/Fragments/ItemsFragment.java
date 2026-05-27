@@ -93,6 +93,18 @@ public class ItemsFragment extends Fragment {
         if (partyLevelSpinner != null) partyLevelSpinner.setVisibility(magicVisibility);
         if (themeLabel != null) themeLabel.setVisibility(magicVisibility);
         if (themeSpinner != null) themeSpinner.setVisibility(magicVisibility);
+        // In tablet landscape the Generate button is tall (so 2024's three
+        // spinners can spread across it). With only two spinners in 2014 that
+        // leaves them too far apart, so shrink the button to the standard
+        // height used by the other tabs. Portrait uses its own button size.
+        Button button = view.findViewById(R.id.item_send);
+        if (button != null && getResources().getConfiguration().orientation
+                == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            float density = getResources().getDisplayMetrics().density;
+            ViewGroup.LayoutParams lp = button.getLayoutParams();
+            lp.height = (int) (density * (is2024 ? 400 : 260));
+            button.setLayoutParams(lp);
+        }
         populateIterationSpinner(is2024 ? 20 : 500);
     }
 

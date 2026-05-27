@@ -1,67 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Tablet landscape Items tab. Single column of form fields + big
-  Generate Item button on the right. Items has at most 3 visible
-  spinners (Party Level + Theme + Number in 2024 mode), which fits
-  vertically in landscape; a 2-column split would leave awkward gaps.
+  Tablet landscape Items tab. Big Generate Item button on the right; the
+  spinner BOXES anchor to the button's edges. The top spinner (Challenge
+  in 2014, Party Level in 2024) pins to the button top, Number pins to the
+  button bottom, and Theme (2024 only) centers on the button's center.
+  Each label floats just above its spinner. Spinners anchor to the button
+  independently, so the visibility toggles per edition just work.
+  Button is taller here to fit three spinners in 2024 mode.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/items"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="horizontal"
         android:paddingLeft="48dp"
         android:paddingRight="48dp">
 
+        <!-- Number spinner is always visible; anchor the button to it. -->
+        <Spinner
+            android:id="@+id/iteration_spinner"
+            android:layout_width="280dp"
+            android:layout_height="85dp"
+            android:layout_alignBottom="@id/item_send"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/number_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/iteration_spinner"
+            android:layout_alignParentStart="true"
+            android:text="@string/number_of_items"
+            android:textColor="@color/black"
+            android:textSize="26sp"/>
+
+        <Button
+            android:id="@+id/item_send"
+            android:layout_width="380dp"
+            android:layout_height="400dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="52dp"
+            android:layout_toEndOf="@id/iteration_spinner"
+            android:layout_marginStart="64dp"
+            android:background="@drawable/button_design"
+            android:onClick="generate"
+            android:text="@string/item_send"
+            android:textSize="32sp"/>
+
+        <!-- Challenge (2014): top spinner. -->
+        <Spinner
+            android:id="@+id/challenge_spinner"
+            android:layout_width="280dp"
+            android:layout_height="85dp"
+            android:layout_alignTop="@id/item_send"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/challenge_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/challenge_spinner"
+            android:layout_alignParentStart="true"
+            android:text="@string/challenge"
+            android:textColor="@color/black"
+            android:textSize="26sp"/>
+
+        <!-- Party Level (2024): top spinner (same slot as Challenge). -->
+        <Spinner
+            android:id="@+id/party_level_spinner"
+            android:layout_width="280dp"
+            android:layout_height="85dp"
+            android:layout_alignTop="@id/item_send"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/spinner_design_external"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/party_level_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/party_level_spinner"
+            android:layout_alignParentStart="true"
+            android:text="@string/party_level"
+            android:textColor="@color/black"
+            android:textSize="26sp"
+            android:visibility="gone"/>
+
+        <!-- Theme (2024): label + spinner in a vertically-centered group, so
+             the box sits ~on the button center and the title stays attached. -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/challenge_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/challenge"
-                android:textColor="@color/black"
-                android:textSize="26sp"/>
-
-            <Spinner
-                android:id="@+id/challenge_spinner"
-                android:layout_width="280dp"
-                android:layout_height="68dp"
-                android:background="@drawable/spinner_design_external"
-                android:gravity="center"/>
-
-            <TextView
-                android:id="@+id/party_level_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/party_level"
-                android:textColor="@color/black"
-                android:textSize="26sp"
-                android:visibility="gone"/>
-
-            <Spinner
-                android:id="@+id/party_level_spinner"
-                android:layout_width="280dp"
-                android:layout_height="68dp"
-                android:background="@drawable/spinner_design_external"
-                android:gravity="center"
-                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/theme_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="@string/theme"
                 android:textColor="@color/black"
                 android:textSize="26sp"
@@ -70,38 +116,11 @@
             <Spinner
                 android:id="@+id/theme_spinner"
                 android:layout_width="280dp"
-                android:layout_height="68dp"
+                android:layout_height="85dp"
                 android:background="@drawable/spinner_design_external"
                 android:gravity="center"
                 android:visibility="gone"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/number_of_items"
-                android:textColor="@color/black"
-                android:textSize="26sp"/>
-
-            <Spinner
-                android:id="@+id/iteration_spinner"
-                android:layout_width="280dp"
-                android:layout_height="68dp"
-                android:background="@drawable/spinner_design_external"
-                android:gravity="center"/>
-
         </LinearLayout>
 
-        <Button
-            android:id="@+id/item_send"
-            android:layout_width="380dp"
-            android:layout_height="220dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="64dp"
-            android:background="@drawable/button_design"
-            android:onClick="generate"
-            android:text="@string/item_send"
-            android:textSize="32sp"/>
-
-    </LinearLayout>
+    </RelativeLayout>
 </FrameLayout>
