@@ -194,9 +194,19 @@ public class LootGenerator extends AppCompatActivity
             adView = null;
         }
         adContainer.removeAllViews();
+        AdSize adSize = getAdaptiveBannerSize();
+        // Reserve the banner's height up-front. The container is wrap_content,
+        // so until the ad loads (async, after consent + SDK init) it would be
+        // 0px tall; the ViewPager would fill the whole screen and the
+        // late-arriving banner would draw over the bottom of the tab content
+        // (e.g. the Generate button). Pinning the height now makes the pager
+        // lay out above the banner from the start.
+        android.view.ViewGroup.LayoutParams lp = adContainer.getLayoutParams();
+        lp.height = adSize.getHeightInPixels(this);
+        adContainer.setLayoutParams(lp);
         adView = new AdView(this);
         adView.setAdUnitId(currentBannerAdUnitId());
-        adView.setAdSize(getAdaptiveBannerSize());
+        adView.setAdSize(adSize);
         adContainer.addView(adView);
         adContainer.setVisibility(View.VISIBLE);
         adView.loadAd(new AdRequest.Builder().build());
