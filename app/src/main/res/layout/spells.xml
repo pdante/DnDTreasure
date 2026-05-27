@@ -14,21 +14,23 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
             style="@style/textView_nexus5"
-            android:text="@string/spell_class"
-            android:layout_marginTop="43dp" />
+            android:layout_marginTop="16dp"
+            android:text="@string/spell_class" />
 
         <Spinner
             style="@style/spinner_nexus5"
-            android:id="@+id/class_spinner"
-            android:layout_marginBottom="5dp" />
+            android:id="@+id/class_spinner" />
 
 
         <TextView
             style="@style/textView_nexus5"
+            android:layout_marginTop="16dp"
             android:text="@string/level" />
 
         <Spinner
