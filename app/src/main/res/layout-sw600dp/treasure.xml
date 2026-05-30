@@ -19,7 +19,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingTop="32dp"
-        android:paddingBottom="32dp"
+        android:paddingBottom="16dp"
         android:paddingLeft="48dp"
         android:paddingRight="48dp">
 
@@ -60,7 +60,7 @@
         <Spinner
             android:id="@+id/challenge_spinner"
             android:layout_width="380dp"
-            android:layout_height="96dp"
+            android:layout_height="84dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"/>
@@ -79,7 +79,7 @@
         <Spinner
             android:id="@+id/party_level_spinner"
             android:layout_width="380dp"
-            android:layout_height="96dp"
+            android:layout_height="84dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"
@@ -99,7 +99,7 @@
         <Spinner
             android:id="@+id/theme_spinner"
             android:layout_width="380dp"
-            android:layout_height="96dp"
+            android:layout_height="84dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"
@@ -117,7 +117,7 @@
         <Spinner
             android:id="@+id/iteration_spinner"
             android:layout_width="380dp"
-            android:layout_height="96dp"
+            android:layout_height="84dp"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"/>
@@ -125,7 +125,7 @@
         <Button
             android:id="@+id/treasure_send"
             android:layout_width="480dp"
-            android:layout_height="200dp"
+            android:layout_height="168dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="44dp"
             android:background="@drawable/button_design"
