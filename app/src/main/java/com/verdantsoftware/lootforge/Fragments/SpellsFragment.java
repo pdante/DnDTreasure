@@ -15,6 +15,7 @@ import com.verdantsoftware.lootforge.TreasureCreationClasses.GenerateSpell;
 import com.verdantsoftware.lootforge.TreasureCreationClasses.GenerateSpellStrings;
 import com.verdantsoftware.lootforge.TypesOfLoot.GenerateLootMessage;
 import com.verdantsoftware.lootforge.TypesOfLoot.SpellTables.AbstractSpells;
+import com.verdantsoftware.lootforge.TypesOfLoot.SpellTables.ArtificerSpells;
 import com.verdantsoftware.lootforge.TypesOfLoot.SpellTables.BardSpells;
 import com.verdantsoftware.lootforge.TypesOfLoot.SpellTables.ClericSpells;
 import com.verdantsoftware.lootforge.TypesOfLoot.SpellTables.DruidSpells;
@@ -88,6 +89,8 @@ public class SpellsFragment extends Fragment{
     }
     private AbstractSpells getCasterType(String casterTypeString) {
         switch (casterTypeString) {
+            case "Artificer":
+                return new ArtificerSpells();
             case "Bard":
                 return new BardSpells();
             case "Cleric":

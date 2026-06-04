@@ -32,6 +32,24 @@ public class Treasure implements TreasureTable {
     private final int[] generatedRarityCounts = new int[MagicItemRarity.values().length];
     private final List<MagicItem2024Generator.Result> generatedItems = new ArrayList<>();
 
+    /**
+     * Parallel to {@link #generatedItems}: which iteration each item came from
+     * (0-indexed). Used by the result dialog to group items by hoard.
+     */
+    private final List<Integer> itemHoardIndex = new ArrayList<>();
+    /** One formatted coin summary per hoard (e.g. "300gp"), in iteration order. */
+    private final List<String> hoardCoinSummaries = new ArrayList<>();
+
+    /**
+     * Populated only when we render each hoard iteration separately
+     * (HORDE + numberOfIterations > 1). When null, callers fall back to
+     * {@link LootList#getTreasure()} which holds the merged result.
+     */
+    private String perHoardOutput;
+
+    private static final String HOARD_DIVIDER =
+            "\r\n────────────────────────────\r\n";
+
     public Treasure(ChallengeRating challengeRating, TypeOfEncounter toE, int numberOfIterations) {
         this.challengeRating = challengeRating;
         list = LootList.getInstance();
@@ -55,51 +73,97 @@ public class Treasure implements TreasureTable {
     }
 
     public void generateTreasure() {
-        if (use2024Rules) {
-            generate2024();
-        } else {
-            generate2014();
-        }
-        list.getTreasure();
-    }
-
-    private void generate2014() {
-        for (int counter = 0; counter < numberOfIterations; counter++) {
-            d100 = d.roll(100);
-            if (toE == TypeOfEncounter.INDIVIDUAL) {
-                new IndividualCoins(challengeRating, d100).createStuff();
-            } else {
-                new HoardCoins(challengeRating, d100).createStuff();
-                new GemsArtAndMagicItems(challengeRating, d100).createStuff();
+        // For multi-iteration hoards, render each hoard separately with a
+        // divider between them. Individual treasure and single-iteration
+        // hoards keep the existing merged-pile behavior.
+        if (toE == TypeOfEncounter.HORDE && numberOfIterations > 1) {
+            StringBuilder out = new StringBuilder();
+            for (int counter = 0; counter < numberOfIterations; counter++) {
+                list.deleteAll();
+                if (use2024Rules) {
+                    generateOneIteration2024(counter);
+                } else {
+                    generateOneIteration2014(counter);
+                }
+                if (counter > 0) out.append(HOARD_DIVIDER);
+                out.append("Hoard ")
+                        .append(counter + 1)
+                        .append(" of ")
+                        .append(numberOfIterations)
+                        .append(":\r\n");
+                out.append(list.getTreasure());
             }
-        }
-    }
-
-    private void generate2024() {
-        for (int counter = 0; counter < numberOfIterations; counter++) {
-            if (toE == TypeOfEncounter.INDIVIDUAL) {
-                Random2024Treasure.IndividualResult money =
-                        Random2024Treasure.rollIndividual(challengeRating);
-                list.addToCoins(currencyLabel(money.currency), money.amount);
-            } else {
-                Random2024Treasure.HoardResult hoard =
-                        Random2024Treasure.rollHoard(challengeRating);
-                list.addToCoins(currencyLabel(hoard.currency), hoard.amount);
-                MagicItem2024Generator generator = new MagicItem2024Generator();
-                for (int i = 0; i < hoard.magicItemCount; i++) {
-                    MagicItem2024Generator.Result result = generator.generate(partyTier, theme);
-                    generatedRarityCounts[result.rarity.ordinal()]++;
-                    generatedItems.add(result);
-                    MagicItemTableObject obj = new MagicItemTableObject();
-                    GenerateItemStrings strings = new GenerateItemStrings();
-                    strings.setName(result.itemName);
-                    strings.setMagicItemtable(
-                            "(" + themeLabel(result.theme) + " — " + rarityLabel(result.rarity) + ")");
-                    obj.generatedStrings = strings;
-                    list.addToLoot(obj);
+            perHoardOutput = out.toString();
+        } else {
+            for (int counter = 0; counter < numberOfIterations; counter++) {
+                if (use2024Rules) {
+                    generateOneIteration2024(counter);
+                } else {
+                    generateOneIteration2014(counter);
                 }
             }
+            list.getTreasure();
         }
+    }
+
+    /** Single iteration of 2014-rules generation. */
+    private void generateOneIteration2014(int iterationIndex) {
+        d100 = d.roll(100);
+        if (toE == TypeOfEncounter.INDIVIDUAL) {
+            new IndividualCoins(challengeRating, d100).createStuff();
+        } else {
+            new HoardCoins(challengeRating, d100).createStuff();
+            new GemsArtAndMagicItems(challengeRating, d100).createStuff();
+        }
+    }
+
+    /** Single iteration of 2024-rules generation. */
+    private void generateOneIteration2024(int iterationIndex) {
+        if (toE == TypeOfEncounter.INDIVIDUAL) {
+            Random2024Treasure.IndividualResult money =
+                    Random2024Treasure.rollIndividual(challengeRating);
+            list.addToCoins(currencyLabel(money.currency), money.amount);
+        } else {
+            Random2024Treasure.HoardResult hoard =
+                    Random2024Treasure.rollHoard(challengeRating);
+            list.addToCoins(currencyLabel(hoard.currency), hoard.amount);
+            hoardCoinSummaries.add(hoard.amount + currencyLabel(hoard.currency));
+            MagicItem2024Generator generator = new MagicItem2024Generator();
+            for (int i = 0; i < hoard.magicItemCount; i++) {
+                MagicItem2024Generator.Result result = generator.generate(partyTier, theme);
+                generatedRarityCounts[result.rarity.ordinal()]++;
+                generatedItems.add(result);
+                itemHoardIndex.add(iterationIndex);
+                MagicItemTableObject obj = new MagicItemTableObject();
+                GenerateItemStrings strings = new GenerateItemStrings();
+                strings.setName(result.itemName);
+                strings.setMagicItemtable(
+                        "(" + themeLabel(result.theme) + " — " + rarityLabel(result.rarity) + ")");
+                obj.generatedStrings = strings;
+                list.addToLoot(obj);
+            }
+        }
+    }
+
+    /** Parallel to {@link #getGeneratedItems()}: hoard index (0-based) per item. */
+    public int[] getItemHoardIndices() {
+        int[] arr = new int[itemHoardIndex.size()];
+        for (int i = 0; i < arr.length; i++) arr[i] = itemHoardIndex.get(i);
+        return arr;
+    }
+
+    /** Per-hoard coin summary strings (e.g. "300gp"), in iteration order. */
+    public String[] getHoardCoinSummaries() {
+        return hoardCoinSummaries.toArray(new String[0]);
+    }
+
+    /**
+     * Final formatted output for the result dialog.
+     * Returns the per-hoard rendered string for multi-iteration hoards,
+     * or the merged LootList for individual / single-iteration runs.
+     */
+    public String getOutput() {
+        return perHoardOutput != null ? perHoardOutput : list.getTreasure();
     }
 
     public int[] getGeneratedRarityCounts() {

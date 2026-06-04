@@ -17,6 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginBottom="40dp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp">
 
@@ -34,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/individual"
-                android:textSize="28sp"/>
+                android:textSize="28sp" />
 
             <RadioButton
                 android:id="@+id/radio_hoard"
@@ -42,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="56dp"
                 android:text="@string/hoard"
-                android:textSize="28sp"/>
+                android:textSize="28sp" />
         </RadioGroup>
 
         <!-- Big Generate button, anchored below the radio; columns key off it. -->
@@ -51,13 +52,13 @@
             android:layout_width="360dp"
             android:layout_height="260dp"
             android:layout_below="@id/radio_encounter"
+            android:layout_marginStart="48dp"
             android:layout_marginTop="52dp"
             android:layout_toEndOf="@id/party_level_spinner"
-            android:layout_marginStart="48dp"
             android:background="@drawable/button_design"
             android:onClick="generate"
             android:text="@string/treasure_send"
-            android:textSize="32sp"/>
+            android:textSize="32sp" />
 
         <!-- Col1: Challenge (top) + Iterations (bottom), always visible. -->
         <Spinner
@@ -67,7 +68,7 @@
             android:layout_alignTop="@id/treasure_send"
             android:layout_alignParentStart="true"
             android:background="@drawable/spinner_design_external"
-            android:gravity="center"/>
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/challenge_label"
@@ -77,7 +78,7 @@
             android:layout_alignStart="@id/challenge_spinner"
             android:text="@string/challenge"
             android:textColor="@color/black"
-            android:textSize="26sp"/>
+            android:textSize="26sp" />
 
         <Spinner
             android:id="@+id/iteration_spinner"
@@ -86,7 +87,7 @@
             android:layout_alignBottom="@id/treasure_send"
             android:layout_alignParentStart="true"
             android:background="@drawable/spinner_design_external"
-            android:gravity="center"/>
+            android:gravity="center" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -95,7 +96,7 @@
             android:layout_alignStart="@id/iteration_spinner"
             android:text="@string/iterations"
             android:textColor="@color/black"
-            android:textSize="26sp"/>
+            android:textSize="26sp" />
 
         <!-- Col2: Party Level (top) + Theme (bottom), 2024 Hoard only. -->
         <Spinner
@@ -103,11 +104,11 @@
             android:layout_width="260dp"
             android:layout_height="85dp"
             android:layout_alignTop="@id/treasure_send"
-            android:layout_toEndOf="@id/challenge_spinner"
             android:layout_marginStart="56dp"
+            android:layout_toEndOf="@id/challenge_spinner"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/party_level_label"
@@ -118,17 +119,17 @@
             android:text="@string/party_level"
             android:textColor="@color/black"
             android:textSize="26sp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <Spinner
             android:id="@+id/theme_spinner"
             android:layout_width="260dp"
             android:layout_height="85dp"
-            android:layout_alignBottom="@id/treasure_send"
             android:layout_alignStart="@id/party_level_spinner"
+            android:layout_alignBottom="@id/treasure_send"
             android:background="@drawable/spinner_design_external"
             android:gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/theme_label"
@@ -139,7 +140,7 @@
             android:text="@string/theme"
             android:textColor="@color/black"
             android:textSize="26sp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
     </RelativeLayout>
 </FrameLayout>

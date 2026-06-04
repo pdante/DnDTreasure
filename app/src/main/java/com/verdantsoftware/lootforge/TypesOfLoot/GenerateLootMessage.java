@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -41,26 +42,39 @@ public class GenerateLootMessage extends DialogFragment {
         final String[] itemNames = args.getStringArray("item_names");
         final int[] itemRarities = args.getIntArray("item_rarities");
         final int[] itemThemes = args.getIntArray("item_themes");
+        final String[] hoardCoinSummaries = args.getStringArray("hoard_coin_summaries");
+        final int[] itemHoardIndex = args.getIntArray("item_hoard_index");
         int partyTierOrdinal = args.getInt("party_tier", -1);
         final boolean has2024Items =
                 itemNames != null && itemNames.length > 0 && partyTierOrdinal >= 0;
+        final boolean isMultiHoard =
+                hoardCoinSummaries != null && hoardCoinSummaries.length > 1
+                        && itemHoardIndex != null && itemHoardIndex.length == itemNames.length;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(lootTitle);
 
-        final String prefixText = has2024Items ? extractNonItemsPrefix(lootMessage) : "";
+        final String prefixText = (has2024Items && !isMultiHoard) ? extractNonItemsPrefix(lootMessage) : "";
         final CheckBox[] checks = has2024Items
                 ? new CheckBox[itemNames.length]
                 : null;
 
         if (has2024Items) {
-            builder.setView(buildItemsView(prefixText, itemNames, itemRarities, itemThemes, checks));
+            if (isMultiHoard) {
+                builder.setView(buildSectionedItemsView(
+                        hoardCoinSummaries, itemHoardIndex,
+                        itemNames, itemRarities, itemThemes, checks));
+            } else {
+                builder.setView(buildItemsView(prefixText, itemNames, itemRarities, itemThemes, checks));
+            }
             final CampaignStore store = new CampaignStore(getActivity());
             final Campaign active = store.getActive();
             final TierOfPlay tier = TierOfPlay.values()[partyTierOrdinal];
             builder.setPositiveButton(R.string.copy_and_commit_to_campaign, (dialog, which) -> { /* overridden in OnShowListener */ });
             builder.setNegativeButton("Copy and Dismiss", (dialog, which) -> {
-                String text = buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
+                String text = isMultiHoard
+                        ? buildSectionedFilteredText(hoardCoinSummaries, itemHoardIndex, itemNames, itemRarities, itemThemes, checks)
+                        : buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
                 copyToClipboard(activity, text);
             });
             builder.setNeutralButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
@@ -80,7 +94,9 @@ public class GenerateLootMessage extends DialogFragment {
                         showOverMaxWarning(activity, active, store, tier, overMax);
                         return;
                     }
-                    String text = buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
+                    String text = isMultiHoard
+                            ? buildSectionedFilteredText(hoardCoinSummaries, itemHoardIndex, itemNames, itemRarities, itemThemes, checks)
+                            : buildFilteredLootText(prefixText, itemNames, itemRarities, itemThemes, checks);
                     copyToClipboard(activity, text);
                     if (!built.isEmpty()) {
                         active.addAwardedItems(built);
@@ -141,6 +157,113 @@ public class GenerateLootMessage extends DialogFragment {
         scroll.addView(container, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return scroll;
+    }
+
+    /**
+     * Multi-hoard variant of {@link #buildItemsView}: one section per hoard,
+     * each with its own coin line, items header, and checkboxes, separated
+     * by a thin divider. {@code checks} is populated in name-array order
+     * (so existing commit/copy logic that indexes into it still works).
+     */
+    private ScrollView buildSectionedItemsView(String[] hoardCoins,
+                                               int[] itemHoardIndex,
+                                               String[] names,
+                                               int[] rarities,
+                                               int[] themes,
+                                               CheckBox[] checks) {
+        LinearLayout container = new LinearLayout(getActivity());
+        container.setOrientation(LinearLayout.VERTICAL);
+        int hPad = dp(24);
+        container.setPadding(hPad, dp(8), hPad, 0);
+
+        float bodySize = getResources().getDimension(R.dimen.text_dialog_body);
+        int numHoards = hoardCoins.length;
+
+        for (int h = 0; h < numHoards; h++) {
+            TextView hoardHeader = new TextView(getActivity());
+            hoardHeader.setText("Hoard " + (h + 1) + " of " + numHoards + ":");
+            hoardHeader.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
+            hoardHeader.setTypeface(hoardHeader.getTypeface(), Typeface.BOLD);
+            hoardHeader.setPadding(0, h == 0 ? 0 : dp(16), 0, dp(4));
+            container.addView(hoardHeader);
+
+            TextView coinsView = new TextView(getActivity());
+            coinsView.setText("Coins: " + hoardCoins[h]);
+            coinsView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
+            coinsView.setPadding(0, 0, 0, dp(8));
+            container.addView(coinsView);
+
+            TextView itemsHeader = new TextView(getActivity());
+            itemsHeader.setText("Items:");
+            itemsHeader.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
+            itemsHeader.setTypeface(itemsHeader.getTypeface(), Typeface.BOLD);
+            itemsHeader.setPadding(0, dp(4), 0, dp(4));
+            container.addView(itemsHeader);
+
+            boolean any = false;
+            for (int i = 0; i < names.length; i++) {
+                if (itemHoardIndex[i] != h) continue;
+                CheckBox cb = new CheckBox(getActivity());
+                cb.setText(formatItemLabel(names[i], rarities[i], themes[i]));
+                cb.setChecked(true);
+                cb.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
+                checks[i] = cb;
+                container.addView(cb);
+                any = true;
+            }
+            if (!any) {
+                TextView none = new TextView(getActivity());
+                none.setText("(no magic items)");
+                none.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
+                container.addView(none);
+            }
+
+            if (h < numHoards - 1) {
+                View divider = new View(getActivity());
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, dp(1));
+                params.setMargins(0, dp(16), 0, 0);
+                divider.setLayoutParams(params);
+                divider.setBackgroundColor(0xFF888888);
+                container.addView(divider);
+            }
+        }
+
+        ScrollView scroll = new ScrollView(getActivity());
+        scroll.addView(container, new ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return scroll;
+    }
+
+    /**
+     * Multi-hoard variant of {@link #buildFilteredLootText}: emits one
+     * "Hoard N of M / Coins / Items" block per hoard, divided by a
+     * horizontal-rule line, with only the checked items per hoard included.
+     */
+    private static String buildSectionedFilteredText(String[] hoardCoins,
+                                                     int[] itemHoardIndex,
+                                                     String[] names,
+                                                     int[] rarities,
+                                                     int[] themes,
+                                                     CheckBox[] checks) {
+        StringBuilder sb = new StringBuilder();
+        int numHoards = hoardCoins.length;
+        for (int h = 0; h < numHoards; h++) {
+            if (h > 0) sb.append("\r\n────────────────────────────\r\n");
+            sb.append("Hoard ").append(h + 1).append(" of ").append(numHoards).append(":\r\n");
+            sb.append("Coins: ").append(hoardCoins[h]).append("\r\n");
+            boolean any = false;
+            for (int i = 0; i < names.length; i++) {
+                if (itemHoardIndex[i] != h) continue;
+                if (checks[i] == null || !checks[i].isChecked()) continue;
+                if (!any) {
+                    sb.append("Items:\r\n");
+                    any = true;
+                }
+                sb.append(formatItemLabel(names[i], rarities[i], themes[i])).append("\r\n");
+            }
+        }
+        return sb.toString();
     }
 
     private static String extractNonItemsPrefix(String fullLoot) {

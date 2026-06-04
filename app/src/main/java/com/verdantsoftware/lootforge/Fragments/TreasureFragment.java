@@ -60,8 +60,8 @@ public class TreasureFragment extends Fragment {
         iterationSpinner.setAdapter(iterAdapter);
 
         // 2024-only spinners populated up-front but hidden until 2024 mode
-        if (partyLevelSpinner != null) setSpinnerArray(partyLevelSpinner, R.array.party_level_array);
-        if (themeSpinner != null) setSpinnerArray(themeSpinner, R.array.theme_array);
+        if (partyLevelSpinner != null) setPartyLevelSpinner(partyLevelSpinner);
+        if (themeSpinner != null) setSpinnerArray(themeSpinner, R.array.theme_array, R.layout.spinner_autosize);
 
         Button button = view.findViewById(R.id.treasure_send);
         button.setOnClickListener(v -> generateTreasure());
@@ -115,8 +115,32 @@ public class TreasureFragment extends Fragment {
     }
 
     private void setSpinnerArray(Spinner spinner, int arrayResId) {
+        setSpinnerArray(spinner, arrayResId, R.layout.spinner);
+    }
+
+    private void setSpinnerArray(Spinner spinner, int arrayResId, int selectedLayoutResId) {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                getActivity(), arrayResId, R.layout.spinner);
+                getActivity(), arrayResId, selectedLayoutResId);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    /** Closed spinner shows "Tier 1"; dropdown items show "Tier 1 (Levels 1-4)". */
+    private void setPartyLevelSpinner(Spinner spinner) {
+        final CharSequence[] shortLabels =
+                getResources().getTextArray(R.array.party_level_short_array);
+        final CharSequence[] longLabels =
+                getResources().getTextArray(R.array.party_level_array);
+
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
+                getActivity(), R.layout.spinner, shortLabels) {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                ((TextView) v.findViewById(android.R.id.text1)).setText(longLabels[position]);
+                return v;
+            }
+        };
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
@@ -152,9 +176,17 @@ public class TreasureFragment extends Fragment {
         DialogFragment how = new GenerateLootMessage();
         Bundle args = new Bundle();
         args.putString("loot_summary", lootSummary);
-        args.putString("loot", list.getTreasure());
+        args.putString("loot", treasure.getOutput());
         if (edition == RulesEdition.RULES_2024) {
             packItems(args, treasure.getGeneratedItems(), treasure.getPartyTier());
+            // For multi-hoard runs, also pack per-hoard grouping so the dialog
+            // can render each hoard's coins + items in its own section.
+            String[] hoardCoins = treasure.getHoardCoinSummaries();
+            int[] itemHoardIdx = treasure.getItemHoardIndices();
+            if (hoardCoins.length > 1) {
+                args.putStringArray("hoard_coin_summaries", hoardCoins);
+                args.putIntArray("item_hoard_index", itemHoardIdx);
+            }
         }
         how.setArguments(args);
         how.show(requireActivity().getSupportFragmentManager(), "tag");

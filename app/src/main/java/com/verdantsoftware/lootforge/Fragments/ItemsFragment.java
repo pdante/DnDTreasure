@@ -43,8 +43,8 @@ public class ItemsFragment extends Fragment {
 
         setSpinnerArray(challengeSpinner, R.array.challenge_array);
 
-        if (partyLevelSpinner != null) setSpinnerArray(partyLevelSpinner, R.array.party_level_array);
-        if (themeSpinner != null) setSpinnerArray(themeSpinner, R.array.theme_array);
+        if (partyLevelSpinner != null) setPartyLevelSpinner(partyLevelSpinner);
+        if (themeSpinner != null) setSpinnerArray(themeSpinner, R.array.theme_array, R.layout.spinner_autosize);
 
         Button button = view.findViewById(R.id.item_send);
         button.setOnClickListener(v -> generateItem());
@@ -118,8 +118,32 @@ public class ItemsFragment extends Fragment {
     }
 
     private void setSpinnerArray(Spinner spinner, int arrayResId) {
+        setSpinnerArray(spinner, arrayResId, R.layout.spinner);
+    }
+
+    private void setSpinnerArray(Spinner spinner, int arrayResId, int selectedLayoutResId) {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                getActivity(), arrayResId, R.layout.spinner);
+                getActivity(), arrayResId, selectedLayoutResId);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    /** Closed spinner shows "Tier 1"; dropdown items show "Tier 1 (Levels 1-4)". */
+    private void setPartyLevelSpinner(Spinner spinner) {
+        final CharSequence[] shortLabels =
+                getResources().getTextArray(R.array.party_level_short_array);
+        final CharSequence[] longLabels =
+                getResources().getTextArray(R.array.party_level_array);
+
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
+                getActivity(), R.layout.spinner, shortLabels) {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                ((TextView) v.findViewById(android.R.id.text1)).setText(longLabels[position]);
+                return v;
+            }
+        };
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }

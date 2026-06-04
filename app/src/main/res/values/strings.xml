@@ -31,6 +31,7 @@
     <string name="class_spinner">Spell Class</string>
     <string-array name="class_array">
         <item>Random</item>
+        <item>Artificer</item>
         <item>Bard</item>
         <item>Cleric</item>
         <item>Druid</item>
@@ -131,6 +132,14 @@
         <item>Tier 2 (Levels 5-10)</item>
         <item>Tier 3 (Levels 11-16)</item>
         <item>Tier 4 (Levels 17-20)</item>
+    </string-array>
+    <!-- Short labels shown in the closed Party Level spinner; the
+         party_level_array above is shown in the open dropdown. -->
+    <string-array name="party_level_short_array">
+        <item>Tier 1</item>
+        <item>Tier 2</item>
+        <item>Tier 3</item>
+        <item>Tier 4</item>
     </string-array>
     <string-array name="theme_array">
         <item>Random</item>

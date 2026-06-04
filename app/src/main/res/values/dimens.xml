@@ -14,7 +14,7 @@
     <dimen name="text_dialog_message">16sp</dimen>
     <dimen name="text_dialog_button">14sp</dimen>
     <dimen name="text_dialog_body">16sp</dimen>
-    <dimen name="text_spinner">16sp</dimen>
+    <dimen name="text_spinner">24sp</dimen>
     <dimen name="toolbar_min_height">56dp</dimen>
     <dimen name="tab_min_height">48dp</dimen>
     <dimen name="text_tracker_header">12sp</dimen>
