@@ -133,7 +133,8 @@ public class BillingManager {
         QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
                 .setProductList(Collections.singletonList(product))
                 .build();
-        billingClient.queryProductDetailsAsync(params, (result, products) -> {
+        billingClient.queryProductDetailsAsync(params, (result, queryResult) -> {
+            List<ProductDetails> products = queryResult.getProductDetailsList();
             if (result.getResponseCode() == BillingClient.BillingResponseCode.OK
                     && !products.isEmpty()) {
                 removeAdsProduct = products.get(0);
