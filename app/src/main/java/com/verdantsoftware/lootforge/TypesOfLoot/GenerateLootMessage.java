@@ -173,7 +173,7 @@ public class GenerateLootMessage extends DialogFragment {
         container.addView(itemsContainer);
         wireMasterCheckbox(header, allChecks);
 
-        ScrollView scroll = new ScrollView(getActivity());
+        ScrollView scroll = new CappedScrollView(getActivity());
         scroll.addView(container, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return scroll;
@@ -344,7 +344,7 @@ public class GenerateLootMessage extends DialogFragment {
             }
         }
 
-        ScrollView scroll = new ScrollView(getActivity());
+        ScrollView scroll = new CappedScrollView(getActivity());
         scroll.addView(container, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return scroll;
@@ -551,5 +551,31 @@ public class GenerateLootMessage extends DialogFragment {
     private int dp(int dp) {
         float scale = getResources().getDisplayMetrics().density;
         return (int) (dp * scale + 0.5f);
+    }
+
+    /**
+     * ScrollView whose height is capped at a fraction of the screen. Without
+     * the cap, a long result (e.g. 17 hoards) lets the custom view take the
+     * dialog's full height and pushes the stacked action buttons off the
+     * bottom of the screen. The cap leaves room for the title and all three
+     * buttons; the list scrolls within it.
+     */
+    private static final class CappedScrollView extends ScrollView {
+        private static final float MAX_SCREEN_FRACTION = 0.55f;
+
+        CappedScrollView(android.content.Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int maxHeight = (int) (getResources().getDisplayMetrics().heightPixels
+                    * MAX_SCREEN_FRACTION);
+            int mode = MeasureSpec.getMode(heightMeasureSpec);
+            int size = MeasureSpec.getSize(heightMeasureSpec);
+            int capped = (mode == MeasureSpec.UNSPECIFIED) ? maxHeight : Math.min(size, maxHeight);
+            super.onMeasure(widthMeasureSpec,
+                    MeasureSpec.makeMeasureSpec(capped, MeasureSpec.AT_MOST));
+        }
     }
 }
