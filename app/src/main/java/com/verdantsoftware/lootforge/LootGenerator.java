@@ -3,9 +3,11 @@ package com.verdantsoftware.lootforge;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -374,7 +376,222 @@ public class LootGenerator extends AppCompatActivity
             return;
         }
         Campaign active = new CampaignStore(this).getActive();
-        getSupportActionBar().setSubtitle(getString(R.string.toolbar_campaign_subtitle, active.getName()));
+
+        // Render "Campaign: <name> · Session N" with the "Session N" portion
+        // styled and tappable as a link. Taps on the rest of the subtitle
+        // fall through to the toolbar's click listener (which opens the
+        // campaign picker).
+        String prefix = "Campaign: " + active.getName() + " · ";
+        String sessionPart = getString(R.string.session_label_short, active.getCurrentSession());
+        String full = prefix + sessionPart;
+        android.text.SpannableString styled = new android.text.SpannableString(full);
+        int start = prefix.length();
+        int end = full.length();
+        styled.setSpan(new android.text.style.UnderlineSpan(), start, end,
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        styled.setSpan(new android.text.style.ForegroundColorSpan(0xFFFFE082), // soft amber
+                start, end, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        styled.setSpan(new android.text.style.ClickableSpan() {
+            @Override
+            public void onClick(@androidx.annotation.NonNull View widget) {
+                showSetSessionDialog();
+            }
+            @Override
+            public void updateDrawState(@androidx.annotation.NonNull android.text.TextPaint ds) {
+                // No-op: the existing underline + color spans handle styling.
+                // Skipping super.updateDrawState avoids the default link blue
+                // color being applied on top of our amber.
+            }
+        }, start, end, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getSupportActionBar().setSubtitle(styled);
+
+        // Toolbar lazily creates its subtitle TextView; defer until after
+        // layout, then install a touch handler that fires the ClickableSpan
+        // when "Session N" is tapped and lets every other tap bubble up to
+        // the toolbar's campaign-picker click listener.
+        if (toolbar != null) {
+            toolbar.post(() -> {
+                android.widget.TextView subtitleView = findSubtitleTextView(toolbar, full);
+                if (subtitleView != null) {
+                    // Clear any stale listener from earlier attempts.
+                    subtitleView.setOnClickListener(null);
+                    subtitleView.setClickable(false);
+                    subtitleView.setLongClickable(false);
+                    subtitleView.setOnTouchListener(spanTouchHandler());
+                }
+            });
+        }
+    }
+
+    /**
+     * Touch handler that delivers ACTION_UP taps to a {@link ClickableSpan}
+     * if the tap landed on one, otherwise returns false so the parent
+     * (the Toolbar) gets a chance to consume the click — that's the
+     * existing campaign-picker entry point.
+     */
+    private static View.OnTouchListener spanTouchHandler() {
+        return (v, event) -> {
+            if (!(v instanceof android.widget.TextView)) return false;
+            android.widget.TextView tv = (android.widget.TextView) v;
+            CharSequence text = tv.getText();
+            if (!(text instanceof android.text.Spanned)) return false;
+            int action = event.getActionMasked();
+            if (action != android.view.MotionEvent.ACTION_UP
+                    && action != android.view.MotionEvent.ACTION_DOWN) {
+                return false;
+            }
+            int x = (int) event.getX() - tv.getTotalPaddingLeft() + tv.getScrollX();
+            int y = (int) event.getY() - tv.getTotalPaddingTop() + tv.getScrollY();
+            android.text.Layout layout = tv.getLayout();
+            if (layout == null) return false;
+            int line = layout.getLineForVertical(y);
+            int offset = layout.getOffsetForHorizontal(line, x);
+            android.text.style.ClickableSpan[] spans = ((android.text.Spanned) text)
+                    .getSpans(offset, offset, android.text.style.ClickableSpan.class);
+            if (spans.length == 0) return false;
+            if (action == android.view.MotionEvent.ACTION_UP) {
+                spans[0].onClick(tv);
+            }
+            return true;
+        };
+    }
+
+    /**
+     * Find the subtitle TextView inside an androidx Toolbar by scanning its
+     * direct children. The Toolbar adds title first then subtitle, so a
+     * text-content match is reliable across SDK versions without reflection.
+     */
+    private static android.widget.TextView findSubtitleTextView(Toolbar toolbar,
+                                                                 String expectedText) {
+        for (int i = 0; i < toolbar.getChildCount(); i++) {
+            View child = toolbar.getChildAt(i);
+            if (child instanceof android.widget.TextView) {
+                android.widget.TextView tv = (android.widget.TextView) child;
+                CharSequence text = tv.getText();
+                if (text != null && expectedText.contentEquals(text)) {
+                    return tv;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Lets the user manually set the active campaign's session number.
+     * The auto-bump prompt (in GenerateLootMessage) handles the common
+     * "new session" case; this is the manual escape hatch.
+     */
+    private void showSetSessionDialog() {
+        CampaignStore store = new CampaignStore(this);
+        final Campaign active = store.getActive();
+
+        // [−] [EditText] [+] — buttons step by 1, EditText accepts direct entry.
+        // Force square buttons and a fixed-width input so the row is symmetric.
+        float dp = getResources().getDisplayMetrics().density;
+        int btnSize = (int) (56 * dp + 0.5f);
+        int inputWidth = (int) (96 * dp + 0.5f);
+        int gap = (int) (12 * dp + 0.5f);
+        int pad = (int) (16 * dp + 0.5f);
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setText(String.valueOf(active.getCurrentSession()));
+        input.setHint(getString(R.string.set_session_dialog_hint));
+        input.setSelectAllOnFocus(true);
+        input.setGravity(android.view.Gravity.CENTER);
+        input.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22);
+
+        android.widget.Button minus = new android.widget.Button(this);
+        minus.setText("−");
+        minus.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22);
+        minus.setPadding(0, 0, 0, 0);
+        minus.setOnClickListener(v -> nudgeSessionInput(input, -1));
+
+        android.widget.Button plus = new android.widget.Button(this);
+        plus.setText("+");
+        plus.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22);
+        plus.setPadding(0, 0, 0, 0);
+        plus.setOnClickListener(v -> nudgeSessionInput(input, +1));
+
+        android.widget.LinearLayout stepper = new android.widget.LinearLayout(this);
+        stepper.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        stepper.setGravity(android.view.Gravity.CENTER);
+        stepper.setPadding(pad, pad, pad, 0);
+
+        android.widget.LinearLayout.LayoutParams btnLp =
+                new android.widget.LinearLayout.LayoutParams(btnSize, btnSize);
+        android.widget.LinearLayout.LayoutParams inputLp =
+                new android.widget.LinearLayout.LayoutParams(
+                        inputWidth, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        inputLp.setMargins(gap, 0, gap, 0);
+        inputLp.gravity = android.view.Gravity.CENTER_VERTICAL;
+
+        stepper.addView(minus, btnLp);
+        stepper.addView(input, inputLp);
+        stepper.addView(plus, btnLp);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.set_session_dialog_title)
+                .setView(stepper)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    String s = input.getText().toString().trim();
+                    if (s.isEmpty()) return;
+                    try {
+                        int n = Integer.parseInt(s);
+                        if (n < 1) n = 1;
+                        applySessionChange(active, store, n);
+                    } catch (NumberFormatException ignored) {}
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /**
+     * Adjust the session-edit EditText by {@code delta}, clamping at 1
+     * and treating empty/non-numeric content as the campaign's current
+     * session value.
+     */
+    private void nudgeSessionInput(EditText input, int delta) {
+        int current;
+        try {
+            current = Integer.parseInt(input.getText().toString().trim());
+        } catch (NumberFormatException e) {
+            current = new CampaignStore(this).getActive().getCurrentSession();
+        }
+        int next = Math.max(1, current + delta);
+        input.setText(String.valueOf(next));
+        input.setSelection(input.getText().length());
+    }
+
+    /**
+     * Commits a session-number change. If the new value would leave
+     * already-committed items stranded at a higher session number,
+     * surfaces a confirmation first so the user understands the
+     * "By Session" view ordering will reflect that history.
+     */
+    private void applySessionChange(Campaign active, CampaignStore store, int newSession) {
+        int highestUsed = 0;
+        for (com.verdantsoftware.lootforge.Tracker.AwardedItem item : active.getAwardedItems()) {
+            if (item.sessionNumber > highestUsed) highestUsed = item.sessionNumber;
+        }
+        if (newSession < highestUsed) {
+            final int n = newSession;
+            final int peak = highestUsed;
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.set_session_warn_title)
+                    .setMessage(getString(R.string.set_session_warn_message, peak, n))
+                    .setPositiveButton(R.string.set_session_warn_continue, (d, w) -> {
+                        active.setCurrentSession(n);
+                        store.saveCampaign(active);
+                        updateToolbarSubtitle();
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+            return;
+        }
+        active.setCurrentSession(newSession);
+        store.saveCampaign(active);
+        updateToolbarSubtitle();
     }
 
     private void showCampaignPickerDialog() {

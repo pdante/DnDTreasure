@@ -23,6 +23,14 @@ public class Campaign {
     private final int[][] counts;
     private final List<AwardedItem> awardedItems;
     private boolean suppressOverMaxWarning;
+    /** Current session number for this campaign. 1 by default. */
+    private int currentSession;
+    /**
+     * Epoch ms of the last loot generation/commit for this campaign.
+     * 0 means "never" (no commits yet). Used to drive the >12h
+     * auto-bump prompt.
+     */
+    private long lastGeneratedAt;
 
     public Campaign(String id, String name) {
         this.id = id;
@@ -32,6 +40,8 @@ public class Campaign {
         this.counts = new int[TIERS][RARITIES];
         this.awardedItems = new ArrayList<>();
         this.suppressOverMaxWarning = false;
+        this.currentSession = 1;
+        this.lastGeneratedAt = 0L;
     }
 
     private Campaign(String id,
@@ -40,7 +50,9 @@ public class Campaign {
                      long lastUpdated,
                      int[][] counts,
                      List<AwardedItem> awardedItems,
-                     boolean suppressOverMaxWarning) {
+                     boolean suppressOverMaxWarning,
+                     int currentSession,
+                     long lastGeneratedAt) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
@@ -48,6 +60,22 @@ public class Campaign {
         this.counts = counts;
         this.awardedItems = awardedItems;
         this.suppressOverMaxWarning = suppressOverMaxWarning;
+        this.currentSession = currentSession;
+        this.lastGeneratedAt = lastGeneratedAt;
+    }
+
+    public int getCurrentSession() { return currentSession; }
+
+    public void setCurrentSession(int value) {
+        this.currentSession = Math.max(1, value);
+        touch();
+    }
+
+    public long getLastGeneratedAt() { return lastGeneratedAt; }
+
+    public void setLastGeneratedAt(long value) {
+        this.lastGeneratedAt = value;
+        touch();
     }
 
     public String getId() { return id; }
@@ -143,6 +171,8 @@ public class Campaign {
         }
         obj.put("awardedItems", itemsArr);
         obj.put("suppressOverMaxWarning", suppressOverMaxWarning);
+        obj.put("currentSession", currentSession);
+        obj.put("lastGeneratedAt", lastGeneratedAt);
         return obj;
     }
 
@@ -175,7 +205,10 @@ public class Campaign {
             }
         }
         boolean suppressOverMaxWarning = obj.optBoolean("suppressOverMaxWarning", false);
-        return new Campaign(id, name, createdAt, lastUpdated, counts, awardedItems, suppressOverMaxWarning);
+        int currentSession = Math.max(1, obj.optInt("currentSession", 1));
+        long lastGeneratedAt = obj.optLong("lastGeneratedAt", 0L);
+        return new Campaign(id, name, createdAt, lastUpdated, counts, awardedItems,
+                suppressOverMaxWarning, currentSession, lastGeneratedAt);
     }
 
     public static int targetForTierAndRarity(TierOfPlay tier, MagicItemRarity rarity) {

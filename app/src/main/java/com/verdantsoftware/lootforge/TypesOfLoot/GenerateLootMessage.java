@@ -82,10 +82,25 @@ public class GenerateLootMessage extends DialogFragment {
 
             final AlertDialog dialog = builder.create();
             final boolean[] alreadyWarned = {false};
+            final boolean[] sessionPromptShown = {false};
             dialog.setOnShowListener(d -> {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    // First click: if it's been >12h since the campaign's last
+                    // commit, ask whether to bump the session number. The
+                    // helper updates lastGeneratedAt either way. We re-fire
+                    // the positive-button click after it resolves so this
+                    // block runs again with the (possibly bumped) session.
+                    if (!sessionPromptShown[0]) {
+                        sessionPromptShown[0] = true;
+                        com.verdantsoftware.lootforge.Tracker.SessionBumpHelper
+                                .checkAndPromptBump(activity, active, store, () ->
+                                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick());
+                        return;
+                    }
+
+                    int sessionAtCommit = active.getCurrentSession();
                     List<AwardedItem> built = buildCheckedAwardedItems(
-                            itemNames, itemRarities, itemThemes, checks, tier);
+                            itemNames, itemRarities, itemThemes, checks, tier, sessionAtCommit);
                     List<MagicItemRarity> overMax = computeOverMaxRarities(active, tier, built);
                     boolean needWarn = !overMax.isEmpty()
                             && !active.isSuppressOverMaxWarning()
@@ -399,7 +414,8 @@ public class GenerateLootMessage extends DialogFragment {
                                                               int[] rarities,
                                                               int[] themes,
                                                               CheckBox[] checks,
-                                                              TierOfPlay tier) {
+                                                              TierOfPlay tier,
+                                                              int sessionNumber) {
         List<AwardedItem> out = new ArrayList<>();
         long ts = System.currentTimeMillis();
         String commitId = UUID.randomUUID().toString();
@@ -413,7 +429,7 @@ public class GenerateLootMessage extends DialogFragment {
                     ? rarityValues[rOrd] : MagicItemRarity.COMMON;
             MagicItemTheme theme = (tOrd >= 0 && tOrd < themeValues.length)
                     ? themeValues[tOrd] : null;
-            out.add(new AwardedItem(names[i], tier, rarity, theme, ts, commitId));
+            out.add(new AwardedItem(names[i], tier, rarity, theme, ts, commitId, sessionNumber));
         }
         return out;
     }

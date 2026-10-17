@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -24,6 +25,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.verdantsoftware.lootforge.EnumeratedClasses.MagicItemRarity;
 import com.verdantsoftware.lootforge.EnumeratedClasses.MagicItemTheme;
 import com.verdantsoftware.lootforge.R;
+import com.verdantsoftware.lootforge.WikidotUrls;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -76,24 +81,40 @@ public class AwardedItemsActivity extends AppCompatActivity {
         }
 
         LinearLayout container = findViewById(R.id.awarded_items_container);
-        populate(container, campaign);
+        RadioGroup grouping = findViewById(R.id.awarded_items_group_choices);
+        grouping.setOnCheckedChangeListener((g, checkedId) -> {
+            container.removeAllViews();
+            boolean bySession = checkedId == R.id.awarded_items_group_session;
+            populate(container, campaign, bySession);
+        });
+        // Initial render uses the default (By Session — matches the
+        // android:checked="true" set on awarded_items_group_session).
+        populate(container, campaign, true);
     }
 
-    private void populate(LinearLayout container, Campaign campaign) {
+    private void populate(LinearLayout container, Campaign campaign, boolean bySession) {
         List<AwardedItem> items = new ArrayList<>(campaign.getAwardedItems());
         if (items.isEmpty()) {
             container.addView(emptyView());
             return;
         }
-
-        Map<String, List<AwardedItem>> groups = new LinkedHashMap<>();
-        // Sort by timestamp descending so most-recent commit groups appear first.
+        // Sort by timestamp descending so the most recent group appears first.
         Collections.sort(items, new Comparator<AwardedItem>() {
             @Override
             public int compare(AwardedItem a, AwardedItem b) {
                 return Long.compare(b.commitTimestamp, a.commitTimestamp);
             }
         });
+
+        if (bySession) {
+            populateBySession(container, items);
+        } else {
+            populateByCommit(container, items);
+        }
+    }
+
+    private void populateByCommit(LinearLayout container, List<AwardedItem> items) {
+        Map<String, List<AwardedItem>> groups = new LinkedHashMap<>();
         for (AwardedItem item : items) {
             String key = item.commitId == null || item.commitId.isEmpty()
                     ? String.valueOf(item.commitTimestamp) : item.commitId;
@@ -104,7 +125,6 @@ public class AwardedItemsActivity extends AppCompatActivity {
             }
             list.add(item);
         }
-
         DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
         boolean first = true;
         for (Map.Entry<String, List<AwardedItem>> entry : groups.entrySet()) {
@@ -112,9 +132,72 @@ public class AwardedItemsActivity extends AppCompatActivity {
             first = false;
             container.addView(groupHeader(fmt.format(new Date(entry.getValue().get(0).commitTimestamp))));
             for (AwardedItem item : entry.getValue()) {
-                container.addView(itemRow(item));
+                container.addView(itemRowWithLink(item));
             }
         }
+    }
+
+    /**
+     * Groups awarded items by their {@link AwardedItem#sessionNumber}.
+     * Renders every session from the campaign's current session down to 1,
+     * so the user can see which sessions were "dry" — empty sessions get a
+     * "No items given" placeholder under their header. Items with no session
+     * (legacy data) appear under a "No session" group at the very bottom.
+     */
+    private void populateBySession(LinearLayout container, List<AwardedItem> items) {
+        Map<Integer, List<AwardedItem>> groups = new java.util.HashMap<>();
+        List<AwardedItem> unknown = new ArrayList<>();
+        int maxSessionWithItems = 0;
+        for (AwardedItem item : items) {
+            if (item.sessionNumber <= 0) {
+                unknown.add(item);
+                continue;
+            }
+            List<AwardedItem> list = groups.get(item.sessionNumber);
+            if (list == null) {
+                list = new ArrayList<>();
+                groups.put(item.sessionNumber, list);
+            }
+            list.add(item);
+            if (item.sessionNumber > maxSessionWithItems) {
+                maxSessionWithItems = item.sessionNumber;
+            }
+        }
+        // Show every session from 1..max(currentSession, maxSessionWithItems),
+        // newest first, including empties.
+        int top = Math.max(campaign.getCurrentSession(), maxSessionWithItems);
+        boolean first = true;
+        for (int s = top; s >= 1; s--) {
+            if (!first) container.addView(spacer(dp(12)));
+            first = false;
+            container.addView(groupHeader(getString(R.string.session_label_short, s)));
+            List<AwardedItem> sessionItems = groups.get(s);
+            if (sessionItems == null || sessionItems.isEmpty()) {
+                container.addView(emptySessionRow());
+            } else {
+                for (AwardedItem item : sessionItems) {
+                    container.addView(itemRowWithLink(item));
+                }
+            }
+        }
+        // Legacy items (sessionNumber == 0) at the bottom.
+        if (!unknown.isEmpty()) {
+            if (!first) container.addView(spacer(dp(12)));
+            container.addView(groupHeader(getString(R.string.session_label_unknown)));
+            for (AwardedItem item : unknown) {
+                container.addView(itemRowWithLink(item));
+            }
+        }
+    }
+
+    private TextView emptySessionRow() {
+        TextView tv = new TextView(this);
+        tv.setText(getString(R.string.awarded_items_session_empty));
+        tv.setTextColor(Color.GRAY);
+        tv.setTextSize(16);
+        tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.ITALIC);
+        tv.setPadding(dp(16), dp(4), 0, dp(4));
+        return tv;
     }
 
     private TextView groupHeader(String text) {
@@ -130,13 +213,58 @@ public class AwardedItemsActivity extends AppCompatActivity {
     private TextView itemRow(AwardedItem item) {
         TextView tv = new TextView(this);
         String suffix = themeLabel(item.theme) + " — " + rarityLabel(item.rarity);
-        tv.setText("•  " + item.name + "  (" + suffix + ")");
+        String sessionTag = item.sessionNumber > 0
+                ? "  · " + getString(R.string.session_label_short, item.sessionNumber)
+                : "";
+        tv.setText("•  " + item.name + "  (" + suffix + ")" + sessionTag);
         tv.setTextColor(Color.BLACK);
         tv.setTextSize(18);
         tv.setPadding(dp(8), dp(4), 0, dp(4));
         applyStrikethrough(tv, item.crossedOut);
         tv.setOnClickListener(v -> onItemTapped(item, tv));
         return tv;
+    }
+
+    /**
+     * Wraps {@link #itemRow(AwardedItem)} in a horizontal row that also
+     * shows a wikidot-link ⓘ icon at the right edge. The original TextView
+     * keeps its strikethrough-on-tap behavior; only the icon launches the
+     * browser.
+     */
+    private View itemRowWithLink(AwardedItem item) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView tv = itemRow(item);
+        LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        row.addView(tv, tvParams);
+
+        TextView info = new TextView(this);
+        info.setText("ⓘ");
+        info.setTextSize(20);
+        final String itemName = item.name;
+        // Blue when a direct wikidot page exists; grey when we'll fall back
+        // to site search (likely no results today, but still tappable in
+        // case the item is added to the wiki later).
+        boolean direct = WikidotUrls.hasDirectMatch(this, itemName);
+        info.setTextColor(direct ? 0xFF1565C0 : 0xFF9E9E9E);
+        info.setPadding(dp(12), dp(4), dp(8), dp(4));
+        info.setOnClickListener(v -> openWikidot(itemName));
+        row.addView(info);
+        return row;
+    }
+
+    private void openWikidot(String itemName) {
+        String url = WikidotUrls.urlFor(this, itemName);
+        try {
+            android.content.Intent intent = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.no_browser_app, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void applyStrikethrough(TextView tv, boolean on) {

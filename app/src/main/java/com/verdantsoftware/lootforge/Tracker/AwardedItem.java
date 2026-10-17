@@ -15,6 +15,12 @@ public class AwardedItem {
     public final MagicItemTheme theme;
     public final long commitTimestamp;
     public final String commitId;
+    /**
+     * Campaign session number at the time this item was committed.
+     * 0 means "unknown" — applies to items committed before session
+     * tracking was added (deserialized from older save files).
+     */
+    public final int sessionNumber;
     public boolean crossedOut;
 
     public AwardedItem(String name,
@@ -22,8 +28,9 @@ public class AwardedItem {
                        MagicItemRarity rarity,
                        MagicItemTheme theme,
                        long commitTimestamp,
-                       String commitId) {
-        this(name, tier, rarity, theme, commitTimestamp, commitId, false);
+                       String commitId,
+                       int sessionNumber) {
+        this(name, tier, rarity, theme, commitTimestamp, commitId, sessionNumber, false);
     }
 
     public AwardedItem(String name,
@@ -32,6 +39,7 @@ public class AwardedItem {
                        MagicItemTheme theme,
                        long commitTimestamp,
                        String commitId,
+                       int sessionNumber,
                        boolean crossedOut) {
         this.name = name;
         this.tier = tier;
@@ -39,6 +47,7 @@ public class AwardedItem {
         this.theme = theme;
         this.commitTimestamp = commitTimestamp;
         this.commitId = commitId;
+        this.sessionNumber = sessionNumber;
         this.crossedOut = crossedOut;
     }
 
@@ -50,6 +59,7 @@ public class AwardedItem {
         obj.put("theme", theme == null ? -1 : theme.ordinal());
         obj.put("commitTimestamp", commitTimestamp);
         obj.put("commitId", commitId);
+        obj.put("sessionNumber", sessionNumber);
         obj.put("crossedOut", crossedOut);
         return obj;
     }
@@ -65,8 +75,9 @@ public class AwardedItem {
                 : enumByOrdinal(MagicItemTheme.values(), themeOrdinal, MagicItemTheme.RANDOM);
         long ts = obj.optLong("commitTimestamp", 0);
         String commitId = obj.optString("commitId", "");
+        int sessionNumber = obj.optInt("sessionNumber", 0);
         boolean crossedOut = obj.optBoolean("crossedOut", false);
-        return new AwardedItem(name, tier, rarity, theme, ts, commitId, crossedOut);
+        return new AwardedItem(name, tier, rarity, theme, ts, commitId, sessionNumber, crossedOut);
     }
 
     private static <E extends Enum<E>> E enumByOrdinal(E[] values, int ordinal, E fallback) {

@@ -16,6 +16,49 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+    <LinearLayout
+        android:id="@+id/awarded_items_group_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="#FFF8ECD3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/awarded_items_group_by"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:layout_marginEnd="8dp" />
+
+        <RadioGroup
+            android:id="@+id/awarded_items_group_choices"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/awarded_items_group_commit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/awarded_items_group_by_tier" />
+
+            <RadioButton
+                android:id="@+id/awarded_items_group_session"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/awarded_items_group_by_session"
+                android:checked="true"
+                android:layout_marginStart="16dp" />
+        </RadioGroup>
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
