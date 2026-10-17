@@ -28,6 +28,7 @@
         <item>9</item>
     </string-array>
     <string name="spell_class">Spell Class: </string>
+    <string name="spell_level_out_of_range">%1$s spells only go from level %2$d to %3$d. Pick a level in that range.</string>
     <string name="class_spinner">Spell Class</string>
     <string-array name="class_array">
         <item>Random</item>

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.verdantsoftware.lootforge.R;
 import com.verdantsoftware.lootforge.TreasureCreationClasses.GenerateSpell;
@@ -64,6 +65,11 @@ public class SpellsFragment extends Fragment{
         if (!levelString.equals("Random"))
             level = Integer.parseInt(levelString);
         String casterTypeString = classSpinner.getSelectedItem().toString();
+        String invalid = invalidCombination(casterTypeString, level);
+        if (invalid != null) {
+            Toast.makeText(getActivity(), invalid, Toast.LENGTH_LONG).show();
+            return;
+        }
         if (!casterTypeString.equals("Random")) {
             casterType = getCasterType(casterTypeString);
             if (level == -1)
@@ -87,6 +93,23 @@ public class SpellsFragment extends Fragment{
         how.setArguments(args);
         how.show(requireActivity().getSupportFragmentManager(), "tag");
     }
+    /**
+     * Returns a user-facing message when the chosen class has no spells at
+     * the chosen level (Paladin/Ranger: 1-5, Artificer: 0-5), else null.
+     * Random class or random level always resolve to a valid combination.
+     */
+    private String invalidCombination(String casterClass, int level) {
+        if (level < 0) return null;
+        if (casterClass.equals("Paladin") || casterClass.equals("Ranger")) {
+            if (level == 0 || level > 5) {
+                return getString(R.string.spell_level_out_of_range, casterClass, 1, 5);
+            }
+        } else if (casterClass.equals("Artificer") && level > 5) {
+            return getString(R.string.spell_level_out_of_range, casterClass, 0, 5);
+        }
+        return null;
+    }
+
     private AbstractSpells getCasterType(String casterTypeString) {
         switch (casterTypeString) {
             case "Artificer":
