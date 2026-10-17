@@ -26,6 +26,7 @@ import com.verdantsoftware.lootforge.R;
 import com.verdantsoftware.lootforge.Tracker.AwardedItem;
 import com.verdantsoftware.lootforge.Tracker.Campaign;
 import com.verdantsoftware.lootforge.Tracker.CampaignStore;
+import com.verdantsoftware.lootforge.WikidotUrls;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,28 +136,119 @@ public class GenerateLootMessage extends DialogFragment {
             container.addView(prefixView);
         }
 
-        TextView header = new TextView(getActivity());
+        CheckBox header = new CheckBox(getActivity());
         header.setText("Items:");
         header.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
                     getResources().getDimension(R.dimen.text_dialog_body));
         header.setTypeface(header.getTypeface(), Typeface.BOLD);
+        header.setChecked(true);
         header.setPadding(0, dp(4), 0, dp(4));
         container.addView(header);
 
+        // Indent the item rows so the "Items:" master sits slightly to the left.
+        LinearLayout itemsContainer = new LinearLayout(getActivity());
+        itemsContainer.setOrientation(LinearLayout.VERTICAL);
+        itemsContainer.setPadding(dp(16), 0, 0, 0);
+        java.util.List<CheckBox> allChecks = new java.util.ArrayList<>();
         for (int i = 0; i < names.length; i++) {
-            CheckBox cb = new CheckBox(getActivity());
-            cb.setText(formatItemLabel(names[i], rarities[i], themes[i]));
-            cb.setChecked(true);
-            cb.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
-                    getResources().getDimension(R.dimen.text_dialog_body));
-            checks[i] = cb;
-            container.addView(cb);
+            itemsContainer.addView(buildItemRow(i, names, rarities, themes, checks,
+                    getResources().getDimension(R.dimen.text_dialog_body)));
+            allChecks.add(checks[i]);
         }
+        container.addView(itemsContainer);
+        wireMasterCheckbox(header, allChecks);
 
         ScrollView scroll = new ScrollView(getActivity());
         scroll.addView(container, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return scroll;
+    }
+
+    /**
+     * Build one checkbox + wikidot-link-icon row for the items list.
+     * The CheckBox keeps its existing selection role; the trailing ⓘ
+     * opens the item's wikidot page (or a site-search fallback) in the
+     * device browser.
+     */
+    private LinearLayout buildItemRow(int i,
+                                      String[] names,
+                                      int[] rarities,
+                                      int[] themes,
+                                      CheckBox[] checks,
+                                      float bodyTextSize) {
+        LinearLayout row = new LinearLayout(getActivity());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        CheckBox cb = new CheckBox(getActivity());
+        cb.setText(formatItemLabel(names[i], rarities[i], themes[i]));
+        cb.setChecked(true);
+        cb.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodyTextSize);
+        LinearLayout.LayoutParams cbParams = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        row.addView(cb, cbParams);
+        checks[i] = cb;
+
+        TextView info = new TextView(getActivity());
+        info.setText("ⓘ");
+        info.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodyTextSize * 1.2f);
+        final String itemName = names[i];
+        boolean direct = com.verdantsoftware.lootforge.WikidotUrls
+                .hasDirectMatch(getActivity(), itemName);
+        // Blue (link) when we have a known wikidot page; grey (de-emphasized)
+        // when we'll fall back to wikidot site search — likely no results,
+        // but still tappable in case the item gets added to the wiki.
+        info.setTextColor(direct ? 0xFF1565C0 : 0xFF9E9E9E);
+        info.setPadding(dp(12), dp(8), dp(4), dp(8));
+        info.setOnClickListener(v -> openWikidot(itemName));
+        row.addView(info);
+
+        return row;
+    }
+
+    /**
+     * Bind a "select all" master checkbox to a group of item checkboxes.
+     *
+     * <ul>
+     *   <li>Toggling the master propagates to every child.</li>
+     *   <li>Unchecking any child unchecks the master.</li>
+     *   <li>When every child becomes checked again, the master re-checks.</li>
+     * </ul>
+     *
+     * The {@code syncing} flag prevents listener recursion when the master
+     * or a child is set programmatically by the other side.
+     */
+    private static void wireMasterCheckbox(CheckBox master, java.util.List<CheckBox> children) {
+        final boolean[] syncing = {false};
+        master.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (syncing[0]) return;
+            syncing[0] = true;
+            for (CheckBox c : children) c.setChecked(isChecked);
+            syncing[0] = false;
+        });
+        for (CheckBox child : children) {
+            child.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (syncing[0]) return;
+                boolean allChecked = true;
+                for (CheckBox c : children) {
+                    if (!c.isChecked()) { allChecked = false; break; }
+                }
+                syncing[0] = true;
+                master.setChecked(allChecked);
+                syncing[0] = false;
+            });
+        }
+    }
+
+    private void openWikidot(String itemName) {
+        String url = WikidotUrls.urlFor(getActivity(), itemName);
+        try {
+            android.content.Intent intent = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            Toast.makeText(getActivity(), R.string.no_browser_app, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -193,25 +285,33 @@ public class GenerateLootMessage extends DialogFragment {
             coinsView.setPadding(0, 0, 0, dp(8));
             container.addView(coinsView);
 
-            TextView itemsHeader = new TextView(getActivity());
-            itemsHeader.setText("Items:");
-            itemsHeader.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
-            itemsHeader.setTypeface(itemsHeader.getTypeface(), Typeface.BOLD);
-            itemsHeader.setPadding(0, dp(4), 0, dp(4));
-            container.addView(itemsHeader);
-
+            // Collect this hoard's item checkboxes so we can wire a
+            // master "Items:" toggle that selects/deselects them as a group.
+            java.util.List<CheckBox> hoardChecks = new java.util.ArrayList<>();
             boolean any = false;
+            // Build rows first so the master checkbox below can reference them.
+            // Indent items so the "Items:" master sits slightly to the left.
+            android.widget.LinearLayout itemsContainer = new android.widget.LinearLayout(getActivity());
+            itemsContainer.setOrientation(android.widget.LinearLayout.VERTICAL);
+            itemsContainer.setPadding(dp(16), 0, 0, 0);
             for (int i = 0; i < names.length; i++) {
                 if (itemHoardIndex[i] != h) continue;
-                CheckBox cb = new CheckBox(getActivity());
-                cb.setText(formatItemLabel(names[i], rarities[i], themes[i]));
-                cb.setChecked(true);
-                cb.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
-                checks[i] = cb;
-                container.addView(cb);
+                itemsContainer.addView(buildItemRow(i, names, rarities, themes, checks, bodySize));
+                hoardChecks.add(checks[i]);
                 any = true;
             }
-            if (!any) {
+
+            if (any) {
+                CheckBox itemsHeader = new CheckBox(getActivity());
+                itemsHeader.setText("Items:");
+                itemsHeader.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
+                itemsHeader.setTypeface(itemsHeader.getTypeface(), Typeface.BOLD);
+                itemsHeader.setChecked(true);
+                itemsHeader.setPadding(0, dp(4), 0, dp(4));
+                wireMasterCheckbox(itemsHeader, hoardChecks);
+                container.addView(itemsHeader);
+                container.addView(itemsContainer);
+            } else {
                 TextView none = new TextView(getActivity());
                 none.setText("(no magic items)");
                 none.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, bodySize);
