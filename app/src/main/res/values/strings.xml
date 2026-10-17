@@ -103,6 +103,13 @@
     <string name="share_app_text">Check out LootForge — a loot generator for D&amp;D 5e:\n%1$s</string>
     <string name="share_app_chooser_title">Share LootForge</string>
     <string name="privacy_policy_url">https://verdantsoftware.github.io/LootForge/</string>
+    <string name="action_how_to_use">How to use</string>
+    <string name="action_faq">FAQ</string>
+    <string name="instructions_url">https://verdantsoftware.github.io/LootForge/instructions.html</string>
+    <string name="faq_url">https://verdantsoftware.github.io/LootForge/faq.html</string>
+    <string name="action_donate">Donate</string>
+    <string name="donate_url">https://paypal.me/PDante</string>
+    <string name="about_image_attribution">Background image of scroll provided by https://www.myfreetextures.com</string>
     <string name="no_browser_app">No app available to open this link</string>
     <string name="no_email_app">No email app available</string>
     <string name="tracker_reset_confirm_title">Reset campaign?</string>

@@ -337,11 +337,11 @@ public class LootGenerator extends AppCompatActivity
         if (remove != null) remove.setVisible(showBillingActions);
         MenuItem restore = menu.findItem(R.id.action_restore_purchases);
         if (restore != null) restore.setVisible(showBillingActions);
+        boolean is2024 = SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024;
         MenuItem deleteAll = menu.findItem(R.id.action_delete_all_campaigns);
         if (deleteAll != null) {
             // Tracker (and therefore campaigns) is 2024-only.
-            deleteAll.setVisible(
-                    SettingsManager.getRulesEdition(this) == RulesEdition.RULES_2024);
+            deleteAll.setVisible(is2024);
         }
         MenuItem versionLabel = menu.findItem(R.id.menu_version_label);
         if (versionLabel != null) {
@@ -492,7 +492,23 @@ public class LootGenerator extends AppCompatActivity
     }
 
     private void openPrivacyPolicy() {
-        android.net.Uri uri = android.net.Uri.parse(getString(R.string.privacy_policy_url));
+        openExternalUrl(R.string.privacy_policy_url);
+    }
+
+    private void openHowToUse() {
+        openExternalUrl(R.string.instructions_url);
+    }
+
+    private void openFaq() {
+        openExternalUrl(R.string.faq_url);
+    }
+
+    private void openDonate() {
+        openExternalUrl(R.string.donate_url);
+    }
+
+    private void openExternalUrl(int urlStringRes) {
+        android.net.Uri uri = android.net.Uri.parse(getString(urlStringRes));
         startActivityOrToast(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri),
                 R.string.no_browser_app);
     }
@@ -543,15 +559,9 @@ public class LootGenerator extends AppCompatActivity
         container.setPadding(hPad, vPad, hPad, 0);
 
         android.widget.TextView body = new android.widget.TextView(this);
-        String text = "Developed by Paul Dante to help save DMs some time.\n\n" +
-                "If you like the app and would like to make a donation: https://paypal.me/PDante\n\n" +
-                "Background image of scroll provided by https://www.myfreetextures.com";
-        body.setText(text);
+        body.setText("Developed by Paul Dante to help save DMs some time.");
         body.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,
                 getResources().getDimension(R.dimen.text_dialog_body));
-        body.setAutoLinkMask(android.text.util.Linkify.WEB_URLS);
-        body.setLinksClickable(true);
-        body.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
         container.addView(body);
 
         android.widget.LinearLayout.LayoutParams btnLp = new android.widget.LinearLayout.LayoutParams(
@@ -559,10 +569,28 @@ public class LootGenerator extends AppCompatActivity
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         btnLp.topMargin = gap;
 
+        container.addView(makeAboutButton(R.string.action_how_to_use, btnLp, v -> openHowToUse()));
+        container.addView(makeAboutButton(R.string.action_faq, btnLp, v -> openFaq()));
         container.addView(makeAboutButton(R.string.action_rate_app, btnLp, v -> openPlayListing()));
         container.addView(makeAboutButton(R.string.action_send_feedback, btnLp, v -> sendFeedbackEmail()));
         container.addView(makeAboutButton(R.string.action_share_app, btnLp, v -> shareApp()));
         container.addView(makeAboutButton(R.string.action_privacy_policy, btnLp, v -> openPrivacyPolicy()));
+        container.addView(makeAboutButton(R.string.action_donate, btnLp, v -> openDonate()));
+
+        // Image attribution footer — small, muted, below the action buttons.
+        android.widget.TextView attribution = new android.widget.TextView(this);
+        attribution.setText(R.string.about_image_attribution);
+        attribution.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
+        attribution.setTextColor(0xFF666666);
+        attribution.setAutoLinkMask(android.text.util.Linkify.WEB_URLS);
+        attribution.setLinksClickable(true);
+        attribution.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+        android.widget.LinearLayout.LayoutParams attrLp = new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        attrLp.topMargin = (int) (16 * density + 0.5f);
+        attrLp.bottomMargin = (int) (8 * density + 0.5f);
+        container.addView(attribution, attrLp);
 
         android.widget.ScrollView scroll = new android.widget.ScrollView(this);
         scroll.addView(container);
