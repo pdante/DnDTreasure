@@ -109,6 +109,8 @@
         <item quantity="one">Campaign deleted</item>
         <item quantity="other">All campaigns deleted</item>
     </plurals>
+    <string name="tracker_create">Create</string>
+    <string name="tracker_save">Save</string>
     <string name="action_delete_all_campaigns">Delete All Campaigns</string>
     <string name="action_rate_app">Rate this app</string>
     <string name="action_send_feedback">Send feedback</string>

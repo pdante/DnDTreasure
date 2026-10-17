@@ -202,6 +202,7 @@ public class TrackerFragment extends Fragment {
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_new_dialog_title)
                 .setView(wrapWithPadding(input))
+                .setPositiveButton(R.string.tracker_create, null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
         Runnable commit = () -> {
@@ -214,6 +215,7 @@ public class TrackerFragment extends Fragment {
         };
         bindImeAccept(input, commit);
         showKeyboardWith(dialog, input);
+        bindPositiveButton(dialog, commit);
     }
 
     private void promptRenameCampaign() {
@@ -229,6 +231,7 @@ public class TrackerFragment extends Fragment {
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.tracker_rename_dialog_title)
                 .setView(wrapWithPadding(input))
+                .setPositiveButton(R.string.tracker_save, null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
         Runnable commit = () -> {
@@ -239,12 +242,21 @@ public class TrackerFragment extends Fragment {
         };
         bindImeAccept(input, commit);
         showKeyboardWith(dialog, input);
+        bindPositiveButton(dialog, commit);
+    }
+
+    /**
+     * Route the dialog's positive button through {@code commit} instead of
+     * the default auto-dismiss, so an empty name keeps the dialog open.
+     * Must run after the dialog is shown.
+     */
+    private static void bindPositiveButton(AlertDialog dialog, Runnable commit) {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> commit.run());
     }
 
     /**
      * Wire the soft keyboard's "Done" action and the physical Enter key to
-     * invoke {@code commit}. Used by text-entry dialogs that have no positive
-     * button — Enter is the only way to accept.
+     * invoke {@code commit}, as a shortcut for the positive button.
      */
     private static void bindImeAccept(EditText input, Runnable commit) {
         input.setOnEditorActionListener((v, actionId, event) -> {
