@@ -6,6 +6,7 @@ package com.verdantsoftware.lootforge.TypesOfLoot.TableObjects;
 public class MagicItemTableObject extends TableObject {
 
     public MagicItemTableObject() {
+        super(Kind.MAGIC_ITEM);
         this.numberOfItem = 1;
     }
 

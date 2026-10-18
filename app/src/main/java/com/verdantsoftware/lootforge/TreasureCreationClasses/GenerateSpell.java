@@ -132,20 +132,16 @@ public class GenerateSpell {
 
         String scroll;
 
-        if ((level == 0) && (spells.getClass() == PaladinSpells.class)) {
-            return errorResult("Paladin class does not have any Level 0 spells");
+        // Check by class name, not spells.getClass(): the spell-table
+        // classes are structurally identical and R8 merges them in release
+        // builds (e.g. Warlock into Paladin), which made class-identity
+        // checks report the wrong class.
+        boolean halfCaster = "Paladin".equals(spellClass) || "Ranger".equals(spellClass);
+        if (level == 0 && halfCaster) {
+            return errorResult(spellClass + " class does not have any Level 0 spells");
         }
-        if ((level == 0) && (spells.getClass() == RangerSpells.class)) {
-            return errorResult("Ranger class does not have any Level 0 spells");
-        }
-        if ((level > 5) && (spells.getClass() == PaladinSpells.class)){
-            return errorResult("Paladin class does not have any spells above Level 5");
-        }
-        if ((level > 5) && (spells.getClass() == RangerSpells.class)){
-            return errorResult("Ranger class does not have any spells above Level 5");
-        }
-        if ((level > 5) && (spells.getClass() == ArtificerSpells.class)){
-            return errorResult("Artificer class does not have any spells above Level 5");
+        if (level > 5 && (halfCaster || "Artificer".equals(spellClass))) {
+            return errorResult(spellClass + " class does not have any spells above Level 5");
         }
         scroll = spells.getSpell(level);
         generateSpellStrings.level = "spell scroll (level " + level + ")";

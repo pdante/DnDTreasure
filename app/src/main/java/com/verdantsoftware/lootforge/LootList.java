@@ -1,7 +1,5 @@
 package com.verdantsoftware.lootforge;
 
-import com.verdantsoftware.lootforge.TypesOfLoot.TableObjects.ArtTableObject;
-import com.verdantsoftware.lootforge.TypesOfLoot.TableObjects.GemTableObject;
 import com.verdantsoftware.lootforge.TypesOfLoot.TableObjects.TableObject;
 
 import java.util.ArrayList;
@@ -89,9 +87,9 @@ public class LootList {
     public void addToLoot(TableObject item) {
         Map<String,Integer> storage;
         String fullNameOfSpell;
-        if (item.getClass() == ArtTableObject.class)
+        if (item.getKind() == TableObject.Kind.ART)
             storage = art;
-        else if (item.getClass() == GemTableObject.class)
+        else if (item.getKind() == TableObject.Kind.GEM)
             storage = gems;
         else
             storage = loot;

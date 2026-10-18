@@ -7,8 +7,24 @@ import com.verdantsoftware.lootforge.TreasureCreationClasses.AbstractGeneratedSt
  * Created by PaulD on 2015-12-02.
  */
 public abstract class TableObject {
+    /**
+     * What this entry is. Callers must branch on this rather than on
+     * getClass(): the subclasses are structurally identical, and R8 merges
+     * them in release builds, so class identity is not reliable there.
+     */
+    public enum Kind { ART, GEM, MAGIC_ITEM }
+
     public int numberOfItem;
     public AbstractGeneratedStrings generatedStrings;
+    private final Kind kind;
+
+    protected TableObject(Kind kind) {
+        this.kind = kind;
+    }
+
+    public Kind getKind() {
+        return kind;
+    }
 
 
     public String getName(){

@@ -6,6 +6,7 @@ package com.verdantsoftware.lootforge.TypesOfLoot.TableObjects;
 public class GemTableObject extends TableObject {
 
     public GemTableObject() {
+        super(Kind.GEM);
         this.numberOfItem = 1;
     }
 

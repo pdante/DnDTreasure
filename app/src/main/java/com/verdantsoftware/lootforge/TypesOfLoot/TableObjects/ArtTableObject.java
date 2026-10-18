@@ -6,6 +6,7 @@ package com.verdantsoftware.lootforge.TypesOfLoot.TableObjects;
 public class ArtTableObject extends TableObject {
 
     public ArtTableObject() {
+        super(Kind.ART);
         this.numberOfItem = 1;
     }
 
