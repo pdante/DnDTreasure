@@ -177,25 +177,21 @@
     <string name="spell_banner_ad">ca-app-pub-9108289994838354/8779529427</string>
     <string name="item_banner_ad">ca-app-pub-9108289994838354/2732995820</string>
     <!--
-        Banner ad units, keyed by ruleset + tab. The values active in code are
-        Google's universal test banner unit so dev builds never serve real ads.
-        Real production unit IDs are listed alongside; swap them in to go live.
+        Banner ad units, keyed by ruleset + tab: the production LootForge
+        units (publisher ca-app-pub-3944085508693815). For a dev/debug build,
+        Google's universal test unit ca-app-pub-3940256099942544/6300978111
+        can be swapped in. Any device installing a build with these real IDs
+        must be registered as an AdMob test device, or taps on our own ads
+        count as invalid traffic.
     -->
-    <!-- Real: ca-app-pub-3944085508693815/5079480591 -->
-    <string name="banner_ad_2024_treasure">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/1878602187 -->
-    <string name="banner_ad_2024_tracker">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/6939357177 -->
-    <string name="banner_ad_2024_items">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/8775183028 -->
-    <string name="banner_ad_2024_spells">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/7270529662 -->
-    <string name="banner_ad_2014_treasure">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/5366421056 (2014 has no Tracker tab today; reserved for parity) -->
-    <string name="banner_ad_2014_tracker">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/8990805448 -->
-    <string name="banner_ad_2014_items">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- Real: ca-app-pub-3944085508693815/2740257716 -->
-    <string name="banner_ad_2014_spells">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_2024_treasure">ca-app-pub-3944085508693815/5079480591</string>
+    <string name="banner_ad_2024_tracker">ca-app-pub-3944085508693815/1878602187</string>
+    <string name="banner_ad_2024_items">ca-app-pub-3944085508693815/6939357177</string>
+    <string name="banner_ad_2024_spells">ca-app-pub-3944085508693815/8775183028</string>
+    <string name="banner_ad_2014_treasure">ca-app-pub-3944085508693815/7270529662</string>
+    <!-- 2014 has no Tracker tab today; reserved for parity. -->
+    <string name="banner_ad_2014_tracker">ca-app-pub-3944085508693815/5366421056</string>
+    <string name="banner_ad_2014_items">ca-app-pub-3944085508693815/8990805448</string>
+    <string name="banner_ad_2014_spells">ca-app-pub-3944085508693815/2740257716</string>
     <string name="txtCredits"><a href=" PayPal.Me/PDante">here</a></string>
 </resources>
