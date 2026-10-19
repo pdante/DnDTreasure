@@ -113,6 +113,24 @@ public class BillingManager {
         }
     }
 
+    /**
+     * Silently re-checks owned purchases. Call when the app returns to the
+     * foreground so entitlements granted outside the app (a promo code
+     * redeemed in the Play Store, a pending payment that cleared, a refund)
+     * are picked up without a restart or a Restore tap. Shows no feedback.
+     */
+    public void refreshPurchases() {
+        if (billingClient.isReady()) {
+            queryPurchases();
+        } else if (billingClient.getConnectionState()
+                == BillingClient.ConnectionState.DISCONNECTED) {
+            // Connection dropped since start(); reconnecting re-queries.
+            // While the initial start() is still connecting, do nothing:
+            // its setup callback runs the query.
+            start();
+        }
+    }
+
     public void restorePurchases() {
         pendingRestoreFeedback = true;
         if (!billingClient.isReady()) {

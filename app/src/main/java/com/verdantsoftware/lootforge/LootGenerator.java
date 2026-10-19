@@ -291,6 +291,7 @@ public class LootGenerator extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         if (adView != null) adView.resume();
+        if (billingManager != null) billingManager.refreshPurchases();
     }
 
     @Override
